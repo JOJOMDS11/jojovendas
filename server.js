@@ -69,8 +69,9 @@ function generateCode(length = 12) {
 
 
 
+
 // Função para gerar pagamento PIX usando a API do Mercado Pago
-async function generatePixPayment(amount, description) {
+async function generatePixPayment(amount, description, idempotencyKey) {
     try {
         const accessToken = process.env.MP_ACCESS_TOKEN;
         if (!accessToken) {
@@ -90,7 +91,8 @@ async function generatePixPayment(amount, description) {
             {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Idempotency-Key': idempotencyKey || crypto.randomUUID()
                 }
             }
         );
@@ -158,10 +160,12 @@ app.post('/api/create-order', async (req, res) => {
 
         console.log(`🆕 Criando pedido: ${packageType} para ${customer_email}`);
 
-        // Gerar pagamento PIX
+
+        // Gerar pagamento PIX (passando orderId como idempotencyKey)
         const pixPayment = await generatePixPayment(
             selectedPackage.price,
-            `Purple Coins - ${selectedPackage.name}`
+            `Purple Coins - ${selectedPackage.name}`,
+            orderId
         );
 
         console.log(`✅ PIX gerado: ${pixPayment.payment_id}`);
