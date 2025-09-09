@@ -1,0 +1,14 @@
+name: Cleanup Expired PIX
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # a cada 5 minutos
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chama endpoint de limpeza de PIX expirado
+        run: |
+          curl -X POST https://jojovendas.vercel.app/api/cleanup-pending-orders
