@@ -331,29 +331,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .test-mode {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: #ff6b6b;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            z-index: 1000;
-        }
-
-        .simulate-btn {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-left: 10px;
-        }
-
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -377,11 +354,6 @@
 </head>
 
 <body>
-    <!-- Test Mode Indicator -->
-    <div class="test-mode" id="testMode" style="display: none;">
-        🧪 MODO TESTE
-    </div>
-
     <div class="container">
         <div class="header">
             <h1>🎮 JojoVendas Purple Coins</h1>
@@ -523,7 +495,7 @@
             <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
             <div class="modal-header">
                 <h2>💳 Pagamento PIX</h2>
-                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX</p>
+                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX para pagar</p>
             </div>
 
             <div id="paymentContent">
@@ -549,9 +521,6 @@
                         <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
                             🔄 Verificar Status
                         </button>
-                        <button class="simulate-btn" onclick="simulatePayment()" id="simulateBtn" style="display: none;">
-                            🧪 Simular Pagamento
-                        </button>
                     </div>
                 </div>
 
@@ -576,7 +545,6 @@
         let currentPackage = null;
         let currentPaymentId = null;
         let paymentCheckInterval = null;
-        let isTestMode = window.location.hostname === 'localhost' || window.location.hostname.includes('vercel.app');
 
         const packages = {
             starter: {
@@ -604,11 +572,6 @@
                 description: 'Pacote ultimate completo'
             }
         };
-
-        // Mostrar modo teste
-        if (isTestMode) {
-            document.getElementById('testMode').style.display = 'block';
-        }
 
         function openPurchaseModal(packageType) {
             currentPackage = packageType;
@@ -742,11 +705,6 @@
                     document.getElementById('copyBtn').disabled = true;
                 }
 
-                // Mostrar botão de simulação em modo teste
-                if (isTestMode) {
-                    document.getElementById('simulateBtn').style.display = 'inline-block';
-                }
-
                 console.log('✅ Modal de pagamento configurado');
             } catch (error) {
                 console.error('❌ Erro ao configurar modal:', error);
@@ -832,38 +790,6 @@
             console.log('⏰ Verificação automática iniciada');
         }
 
-        // Função para simular pagamento (apenas em modo teste)
-        async function simulatePayment() {
-            if (!isTestMode || !currentPaymentId) return;
-
-            try {
-                console.log('🧪 Simulando pagamento:', currentPaymentId);
-                
-                const response = await fetch('/api/simulate-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        payment_id: currentPaymentId
-                    })
-                });
-
-                const data = await response.json();
-                console.log('🧪 Resposta da simulação:', data);
-
-                if (data.success) {
-                    // Aguardar um pouco e verificar status
-                    setTimeout(checkPaymentStatus, 2000);
-                } else {
-                    showError('Erro ao simular pagamento: ' + data.message);
-                }
-            } catch (error) {
-                console.error('❌ Erro na simulação:', error);
-                showError('Erro ao simular pagamento');
-            }
-        }
-
         // Fechar modal clicando fora
         window.onclick = function (event) {
             if (event.target.classList.contains('modal')) {
@@ -881,7 +807,6 @@
 
         // Log inicial
         console.log('🎮 JojoVendas Purple Coins - Sistema carregado');
-        console.log('🌐 Modo:', isTestMode ? 'TESTE' : 'PRODUÇÃO');
     </script>
 </body>
 

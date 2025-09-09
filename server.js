@@ -74,10 +74,13 @@ function generatePixCode(amount, description, recipientName = 'JOJO VENDAS') {
     const merchantName = recipientName.substring(0, 25);
     const merchantCity = 'SAO PAULO';
     const txId = generateCode(8);
-    
+    // Sempre usar a chave PIX real do ambiente
+    const pixKey = process.env.PIX_KEY;
+    if (!pixKey) {
+        throw new Error('PIX_KEY não definida nas variáveis de ambiente!');
+    }
     // Formato simplificado do PIX
-    const pixCode = `00020126580014BR.GOV.BCB.PIX0136${process.env.PIX_KEY || '412dd49e-0f7b-4a52-a5c5-bbf720214931'}520400005303986540${formatAmount.length}${formatAmount}5925${merchantName}6009${merchantCity}62070503${txId}6304`;
-    
+    const pixCode = `00020126580014BR.GOV.BCB.PIX0136${pixKey}520400005303986540${formatAmount.length}${formatAmount}5925${merchantName}6009${merchantCity}62070503${txId}6304`;
     return {
         code: pixCode,
         tx_id: txId
@@ -86,6 +89,8 @@ function generatePixCode(amount, description, recipientName = 'JOJO VENDAS') {
 
 // Função para gerar pagamento PIX atualizada
 async function generatePixPayment(amount, description) {
+    // Aqui você pode integrar com Mercado Pago ou outro PSP real
+    // Exemplo: garantir que nunca retorna dados de teste
     try {
         const paymentId = crypto.randomUUID();
         const pixData = generatePixCode(amount, description);
