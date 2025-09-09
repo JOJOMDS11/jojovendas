@@ -3,16 +3,19 @@ app.post('/api/cleanup-pending-orders', async (req, res) => {
     let connection;
     const expiredOrders = [];
     try {
+        console.log('[CLEANUP] Iniciando limpeza de pedidos pendentes...');
         connection = await getConnection();
         // Busca pedidos pendentes há mais de 5 minutos
         const [orders] = await connection.execute(`
             SELECT id, payment_id, created_at FROM pix_orders
             WHERE status = 'pending' AND created_at < (NOW() - INTERVAL 5 MINUTE)
         `);
+        console.log(`[CLEANUP] Pedidos encontrados: ${orders.length}`);
         for (const order of orders) {
+            console.log(`[CLEANUP] Cancelando pagamento Mercado Pago: ${order.payment_id}`);
             // Cancela no Mercado Pago
             try {
-                await axios.put(
+                const mpResp = await axios.put(
                     `https://api.mercadopago.com/v1/payments/${order.payment_id}`,
                     { status: 'cancelled' },
                     {
@@ -21,18 +24,25 @@ app.post('/api/cleanup-pending-orders', async (req, res) => {
                         }
                     }
                 );
+                console.log(`[CLEANUP] Mercado Pago resposta:`, mpResp.data);
             } catch (err) {
-                // Pode já estar cancelado, ignora erro
+                console.error(`[CLEANUP] Erro ao cancelar no Mercado Pago:`, err.response?.data || err.message);
             }
             // Atualiza status para expired e remove pix_code
-            await connection.execute(
-                'UPDATE pix_orders SET status = \'expired\', pix_code = NULL WHERE id = ?',
-                [order.id]
-            );
+            try {
+                await connection.execute(
+                    'UPDATE pix_orders SET status = \'expired\', pix_code = NULL WHERE id = ?',
+                    [order.id]
+                );
+                console.log(`[CLEANUP] Pedido ${order.id} marcado como expired.`);
+            } catch (err) {
+                console.error(`[CLEANUP] Erro ao atualizar pedido no banco:`, err.message);
+            }
             expiredOrders.push(order.payment_id);
         }
         res.json({ success: true, expired: expiredOrders });
     } catch (error) {
+        console.error('[CLEANUP] Erro geral:', error);
         res.status(500).json({ success: false, error: error.message });
     } finally {
         if (connection) connection.release();
