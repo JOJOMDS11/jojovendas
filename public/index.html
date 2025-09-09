@@ -485,9 +485,6 @@
                         <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
                             🔄 Verificar Status
                         </button>
-                        <button class="buy-btn" onclick="simulatePayment()" style="width: auto; background: #28a745;">
-                            ⚡ Simular Pagamento (TESTE)
-                        </button>
                     </div>
                 </div>
 
@@ -611,32 +608,6 @@
                 }
             } catch (error) {
                 console.error('Erro ao verificar pagamento:', error);
-            }
-        }
-
-        async function simulatePayment() {
-            if (!currentPaymentId) return;
-
-            try {
-                const response = await fetch('/api/simulate-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        payment_id: currentPaymentId
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    setTimeout(() => {
-                        checkPaymentStatus();
-                    }, 2000);
-                }
-            } catch (error) {
-                console.error('Erro ao simular pagamento:', error);
             }
         }
 

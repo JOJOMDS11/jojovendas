@@ -11,12 +11,12 @@ const dbConfig = {
 
 async function setupDatabase() {
     let connection;
-    
+
     try {
         console.log('🔧 Configurando banco de dados para JojoVendas...');
-        
+
         connection = await mysql.createConnection(dbConfig);
-        
+
         // Criar tabela de pedidos PIX
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS pix_orders (
@@ -39,15 +39,15 @@ async function setupDatabase() {
                 INDEX idx_customer_email (customer_email)
             )
         `);
-        
+
         console.log('✅ Tabela pix_orders criada com sucesso!');
-        
+
         // Verificar se as tabelas do bot existem
         const [tables] = await connection.execute("SHOW TABLES LIKE 'purple_coin_codes'");
-        
+
         if (tables.length === 0) {
             console.log('⚠️  Tabela purple_coin_codes não encontrada. Criando...');
-            
+
             await connection.execute(`
                 CREATE TABLE IF NOT EXISTS purple_coin_codes (
                     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -66,13 +66,13 @@ async function setupDatabase() {
                     INDEX idx_expires (expires_at)
                 )
             `);
-            
+
             console.log('✅ Tabela purple_coin_codes criada!');
         }
-        
+
         // Inserir alguns dados de teste
         console.log('📝 Inserindo dados de teste...');
-        
+
         const testOrder = {
             id: require('crypto').randomUUID(),
             package_type: 'starter',
@@ -85,7 +85,7 @@ async function setupDatabase() {
             status: 'paid',
             purple_coin_code: 'PC100_TESTE123'
         };
-        
+
         try {
             await connection.execute(`
                 INSERT INTO pix_orders (
@@ -99,7 +99,7 @@ async function setupDatabase() {
                 testOrder.price_brl, testOrder.payment_id, testOrder.pix_code,
                 testOrder.status, testOrder.purple_coin_code
             ]);
-            
+
             console.log('✅ Pedido de teste inserido!');
         } catch (error) {
             if (error.code !== 'ER_DUP_ENTRY') {
@@ -107,7 +107,7 @@ async function setupDatabase() {
             }
             console.log('ℹ️  Dados de teste já existem');
         }
-        
+
         // Mostrar estatísticas
         const [stats] = await connection.execute(`
             SELECT 
@@ -117,13 +117,13 @@ async function setupDatabase() {
                 SUM(CASE WHEN status = 'paid' THEN purple_coins_amount ELSE 0 END) as total_coins_sold
             FROM pix_orders
         `);
-        
+
         console.log('\n📊 ESTATÍSTICAS ATUAIS:');
         console.log('Total de Pedidos:', stats[0].total_orders);
         console.log('Pedidos Pagos:', stats[0].paid_orders);
         console.log('Receita Total: R$', stats[0].total_revenue);
         console.log('Purple Coins Vendidas:', stats[0].total_coins_sold);
-        
+
         console.log('\n🎉 Banco de dados configurado com sucesso!');
         console.log('\n🚀 Para iniciar o servidor:');
         console.log('1. Configure o arquivo .env com suas credenciais');
@@ -131,7 +131,7 @@ async function setupDatabase() {
         console.log('3. Execute: npm start');
         console.log('4. Acesse: http://localhost:3000');
         console.log('5. Admin: http://localhost:3000/admin (senha: eojojos)');
-        
+
     } catch (error) {
         console.error('❌ Erro ao configurar banco:', error);
         process.exit(1);
@@ -143,7 +143,13 @@ async function setupDatabase() {
 }
 
 if (require.main === module) {
-    setupDatabase();
+    if (process.env.VERCEL) {
+        console.log('⚠️  Este script não deve ser executado automaticamente no Vercel.');
+        console.log('Configure seu banco de dados MySQL em um provedor externo (ex: PlanetScale) e rode este script localmente para criar as tabelas.');
+        process.exit(0);
+    } else {
+        setupDatabase();
+    }
 }
 
 module.exports = { setupDatabase };
