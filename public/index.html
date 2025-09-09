@@ -175,6 +175,8 @@
             max-width: 500px;
             width: 90%;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -232,7 +234,9 @@
         }
 
         .qr-code img {
-            max-width: 250px;
+            max-width: 300px;
+            width: 100%;
+            height: auto;
             border: 2px solid #ddd;
             border-radius: 10px;
         }
@@ -245,6 +249,7 @@
             word-break: break-all;
             font-family: monospace;
             border: 2px dashed #667eea;
+            font-size: 0.9rem;
         }
 
         .copy-btn {
@@ -255,6 +260,11 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #45b7aa;
         }
 
         .status-check {
@@ -306,6 +316,44 @@
             margin-bottom: 15px;
         }
 
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .test-mode {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 1000;
+        }
+
+        .simulate-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -319,12 +367,21 @@
                 padding: 20px;
                 margin: 20px;
             }
+
+            .qr-code img {
+                max-width: 250px;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
+    <!-- Test Mode Indicator -->
+    <div class="test-mode" id="testMode" style="display: none;">
+        🧪 MODO TESTE
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>🎮 JojoVendas Purple Coins</h1>
@@ -354,286 +411,4 @@
                 <div class="info-item">
                     <i class="fas fa-gamepad"></i>
                     <h3>4. Use no Discord</h3>
-                    <p>Digite <code>/codigo SEU_CODIGO</code> no servidor do bot</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="packages-grid">
-            <div class="package-card">
-                <div class="package-title">🌟 Starter Pack</div>
-                <div class="package-coins">100 PC</div>
-                <div class="package-price">R$ 5,00</div>
-                <div class="package-description">Pacote inicial perfeito para começar sua jornada</div>
-                <ul class="package-features">
-                    <li>100 Purple Coins</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte 24/7</li>
-                    <li>Entrega instantânea</li>
-                </ul>
-                <button class="buy-btn" onclick="openPurchaseModal('starter')">
-                    🛒 Comprar Agora
-                </button>
-            </div>
-
-            <div class="package-card package-popular">
-                <div class="package-title">🔥 Popular Pack</div>
-                <div class="package-coins">500 PC</div>
-                <div class="package-price">R$ 20,00</div>
-                <div class="package-discount">20% OFF</div>
-                <div class="package-description">Nosso pacote mais vendido com desconto especial</div>
-                <ul class="package-features">
-                    <li>500 Purple Coins</li>
-                    <li>Economia de R$ 5,00</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte prioritário</li>
-                </ul>
-                <button class="buy-btn" onclick="openPurchaseModal('popular')">
-                    🔥 Comprar Popular
-                </button>
-            </div>
-
-            <div class="package-card">
-                <div class="package-title">💎 Premium Pack</div>
-                <div class="package-coins">1000 PC</div>
-                <div class="package-price">R$ 35,00</div>
-                <div class="package-discount">30% OFF</div>
-                <div class="package-description">Pacote premium com máximo desconto</div>
-                <ul class="package-features">
-                    <li>1000 Purple Coins</li>
-                    <li>Economia de R$ 15,00</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte VIP</li>
-                </ul>
-                <button class="buy-btn" onclick="openPurchaseModal('premium')">
-                    💎 Comprar Premium
-                </button>
-            </div>
-
-            <div class="package-card">
-                <div class="package-title">🚀 Ultimate Pack</div>
-                <div class="package-coins">2500 PC</div>
-                <div class="package-price">R$ 75,00</div>
-                <div class="package-discount">40% OFF</div>
-                <div class="package-description">Pacote ultimate para jogadores dedicados</div>
-                <ul class="package-features">
-                    <li>2500 Purple Coins</li>
-                    <li>Economia de R$ 50,00</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte exclusivo</li>
-                </ul>
-                <button class="buy-btn" onclick="openPurchaseModal('ultimate')">
-                    🚀 Comprar Ultimate
-                </button>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>🎮 Sistema desenvolvido para HaxBall DreamTeam | 🔒 Pagamentos seguros via PIX</p>
-            <p>💬 Suporte: <a href="https://discord.gg/aZdM3t86ZW" target="_blank"
-                    style="color:#fff;text-decoration:underline;font-weight:bold;">DISCORD CLIQUE AQUI</a> | 📧 Email:
-                padrejojos@gmail.com</p>
-        </div>
-    </div>
-
-    <!-- Modal de Compra -->
-    <div id="purchaseModal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('purchaseModal')">&times;</button>
-            <div class="modal-header">
-                <h2 id="modalTitle">Finalizar Compra</h2>
-                <p id="modalSubtitle">Preencha seus dados para continuar</p>
-            </div>
-            <form id="purchaseForm">
-                <div class="form-group">
-                    <label for="customerName">Nome Completo:</label>
-                    <input type="text" id="customerName" required placeholder="Seu nome completo">
-                </div>
-                <div class="form-group">
-                    <label for="customerEmail">Email:</label>
-                    <input type="email" id="customerEmail" required placeholder="seu@email.com">
-                </div>
-                <button type="submit" class="buy-btn">
-                    🎯 Gerar PIX
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal de Pagamento -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content payment-modal">
-            <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
-            <div class="modal-header">
-                <h2>💳 Pagamento PIX</h2>
-                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX</p>
-            </div>
-
-            <div id="paymentContent">
-                <div class="qr-code">
-                    <img id="qrCodeImage" src="" alt="QR Code PIX">
-                </div>
-
-                <div class="pix-code">
-                    <strong>Código PIX:</strong>
-                    <div id="pixCodeText"></div>
-                    <button class="copy-btn" onclick="copyPixCode()">
-                        📋 Copiar Código
-                    </button>
-                </div>
-
-                <div class="status-check">
-                    <h3>⏳ Aguardando Pagamento...</h3>
-                    <p>Status será atualizado automaticamente após o pagamento</p>
-                    <div style="margin-top: 15px;">
-                        <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
-                            🔄 Verificar Status
-                        </button>
-                    </div>
-                </div>
-
-                <div id="successContent" style="display: none;">
-                    <div class="success-message">
-                        <h3>🎉 Pagamento Confirmado!</h3>
-                        <p>Seu código Purple Coins:</p>
-                        <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">
-                            <span id="purpleCoinCode"></span>
-                        </div>
-                        <p><strong>Use o comando:</strong> <code>/codigo SEU_CODIGO</code> no Discord</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let currentPackage = null;
-        let currentPaymentId = null;
-
-        const packages = {
-            starter: {
-                name: 'Starter Pack',
-                purple_coins: 100,
-                price: 5.00,
-                description: 'Pacote inicial perfeito para começar'
-            },
-            popular: {
-                name: 'Popular Pack',
-                purple_coins: 500,
-                price: 20.00,
-                description: 'Nosso pacote mais vendido'
-            },
-            premium: {
-                name: 'Premium Pack',
-                purple_coins: 1000,
-                price: 35.00,
-                description: 'Pacote premium com desconto'
-            },
-            ultimate: {
-                name: 'Ultimate Pack',
-                purple_coins: 2500,
-                price: 75.00,
-                description: 'Pacote ultimate completo'
-            }
-        };
-
-        function openPurchaseModal(packageType) {
-            currentPackage = packageType;
-            const pkg = packages[packageType];
-
-            document.getElementById('modalTitle').textContent = `Comprar ${pkg.name}`;
-            document.getElementById('modalSubtitle').textContent =
-                `${pkg.purple_coins} Purple Coins por R$ ${pkg.price.toFixed(2)}`;
-
-            document.getElementById('purchaseModal').style.display = 'block';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const customerName = document.getElementById('customerName').value;
-            const customerEmail = document.getElementById('customerEmail').value;
-
-            try {
-                const response = await fetch('/api/create-order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        package: currentPackage,
-                        customer_name: customerName,
-                        customer_email: customerEmail
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    currentPaymentId = data.order.payment.id;
-                    // Exibe QR Code e código PIX apenas se existirem
-                    if (data.order.payment.qr_code && data.order.payment.pix_code) {
-                        document.getElementById('qrCodeImage').src = data.order.payment.qr_code;
-                        document.getElementById('qrCodeImage').style.display = 'block';
-                        document.getElementById('pixCodeText').textContent = data.order.payment.pix_code;
-                    } else {
-                        document.getElementById('qrCodeImage').style.display = 'none';
-                        document.getElementById('pixCodeText').textContent = 'Não foi possível gerar o código PIX. Tente novamente.';
-                    }
-                    document.getElementById('paymentInfo').textContent =
-                        `${data.order.package.name} - R$ ${data.order.payment.amount.toFixed(2)}`;
-                    closeModal('purchaseModal');
-                    document.getElementById('paymentModal').style.display = 'block';
-                } else {
-                    alert('Erro ao criar pedido: ' + data.message);
-                }
-            } catch (error) {
-                alert('Erro de conexão: ' + error.message);
-            }
-        });
-
-        function copyPixCode() {
-            const pixCode = document.getElementById('pixCodeText').textContent;
-            navigator.clipboard.writeText(pixCode).then(() => {
-                alert('Código PIX copiado para a área de transferência!');
-            });
-        }
-
-        async function checkPaymentStatus() {
-            if (!currentPaymentId) return;
-
-            try {
-                const response = await fetch(`/api/check-payment/${currentPaymentId}`);
-                const data = await response.json();
-
-                if (data.success && data.payment.status === 'paid') {
-                    document.getElementById('purpleCoinCode').textContent = data.payment.purple_coin_code;
-                    document.getElementById('successContent').style.display = 'block';
-                    document.querySelector('.status-check').style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Erro ao verificar pagamento:', error);
-            }
-        }
-
-        // Auto-verificar pagamento a cada 5 segundos
-        setInterval(() => {
-            if (currentPaymentId && document.getElementById('paymentModal').style.display === 'block') {
-                checkPaymentStatus();
-            }
-        }, 5000);
-
-        // Fechar modal clicando fora
-        window.onclick = function (event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
-</body>
-
-</html>
+                    <p>Digite <code
