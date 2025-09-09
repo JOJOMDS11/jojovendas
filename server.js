@@ -1,11 +1,5 @@
 // ================== IMPORTS E INICIALIZAÇÃO ==================
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2/promise');
-const QRCode = require('qrcode');
-const axios = require('axios');
-const crypto = require('crypto');
-require('dotenv').config();
+
 
 
 
@@ -65,13 +59,7 @@ app.post('/api/cleanup-pending-orders', async (req, res) => {
         if (connection) connection.release();
     }
 });
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2/promise');
-const QRCode = require('qrcode');
-const axios = require('axios');
-const crypto = require('crypto');
-require('dotenv').config();
+
 
 
 
