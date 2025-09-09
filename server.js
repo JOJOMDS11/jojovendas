@@ -1,6 +1,20 @@
+// ================== IMPORTS E INICIALIZAÇÃO ==================
+const express = require('express');
+const cors = require('cors');
+const mysql = require('mysql2/promise');
+const QRCode = require('qrcode');
+const axios = require('axios');
+const crypto = require('crypto');
+require('dotenv').config();
 
-// ... (mantém os imports e inicialização do app aqui)
 
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
+
+// ================== RESTANTE DO CÓDIGO ==================
 // Limpeza de pedidos PIX pendentes há mais de 5 minutos
 app.post('/api/cleanup-pending-orders', async (req, res) => {
     let connection;
@@ -59,8 +73,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 require('dotenv').config();
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(cors());
