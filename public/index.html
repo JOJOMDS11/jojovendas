@@ -327,8 +327,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         @media (max-width: 768px) {
@@ -528,7 +533,8 @@
                     <div class="success-message">
                         <h3>🎉 Pagamento Confirmado!</h3>
                         <p>Seu código Purple Coins:</p>
-                        <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 2px dashed #28a745;">
+                        <div
+                            style="font-size: 1.5rem; font-weight: bold; margin: 10px 0; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 2px dashed #28a745;">
                             <span id="purpleCoinCode"></span>
                         </div>
                         <p><strong>Use o comando:</strong> <code>/codigo SEU_CODIGO</code> no Discord</p>
@@ -586,7 +592,7 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
-            
+
             // Limpar interval se existir
             if (paymentCheckInterval) {
                 clearInterval(paymentCheckInterval);
@@ -651,13 +657,13 @@
 
                 if (data.success) {
                     currentPaymentId = data.order.payment.id;
-                    
+
                     // Configurar modal de pagamento
                     setupPaymentModal(data.order);
-                    
+
                     closeModal('purchaseModal');
                     document.getElementById('paymentModal').style.display = 'block';
-                    
+
                     // Iniciar verificação automática
                     startPaymentCheck();
                 } else {
@@ -684,7 +690,7 @@
                     const qrImg = document.getElementById('qrCodeImage');
                     qrImg.src = order.payment.qr_code;
                     qrImg.style.display = 'block';
-                    qrImg.onerror = function() {
+                    qrImg.onerror = function () {
                         console.error('❌ Erro ao carregar QR Code');
                         document.getElementById('qrCodeError').style.display = 'block';
                         this.style.display = 'none';
@@ -714,7 +720,7 @@
 
         function copyPixCode() {
             const pixCode = document.getElementById('pixCodeText').textContent;
-            
+
             if (!pixCode || pixCode === 'Gerando código...' || pixCode.includes('Erro')) {
                 showError('Código PIX não disponível');
                 return;
@@ -725,7 +731,7 @@
                 const originalText = copyBtn.innerHTML;
                 copyBtn.innerHTML = '✅ Copiado!';
                 copyBtn.style.background = '#28a745';
-                
+
                 setTimeout(() => {
                     copyBtn.innerHTML = originalText;
                     copyBtn.style.background = '#4ecdc4';
@@ -751,7 +757,7 @@
 
             try {
                 console.log('🔍 Verificando pagamento:', currentPaymentId);
-                
+
                 const response = await fetch(`/api/check-payment/${currentPaymentId}`);
                 const data = await response.json();
 
@@ -770,7 +776,7 @@
             document.getElementById('purpleCoinCode').textContent = code;
             document.getElementById('successContent').style.display = 'block';
             document.querySelector('.status-check').style.display = 'none';
-            
+
             // Parar verificação automática
             if (paymentCheckInterval) {
                 clearInterval(paymentCheckInterval);
@@ -784,7 +790,7 @@
             if (paymentCheckInterval) {
                 clearInterval(paymentCheckInterval);
             }
-            
+
             // Verificar a cada 5 segundos
             paymentCheckInterval = setInterval(checkPaymentStatus, 5000);
             console.log('⏰ Verificação automática iniciada');

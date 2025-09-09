@@ -94,7 +94,7 @@ async function generatePixPayment(amount, description) {
     try {
         const paymentId = crypto.randomUUID();
         const pixData = generatePixCode(amount, description);
-        
+
         // Gerar QR Code com maior qualidade
         const qrCodeOptions = {
             errorCorrectionLevel: 'M',
@@ -109,7 +109,7 @@ async function generatePixPayment(amount, description) {
         };
 
         const qrCodeBase64 = await QRCode.toDataURL(pixData.code, qrCodeOptions);
-        
+
         return {
             payment_id: paymentId,
             pix_code: pixData.code,
@@ -168,9 +168,9 @@ app.post('/api/create-order', async (req, res) => {
 
         const selectedPackage = packages[packageType];
         const orderId = crypto.randomUUID();
-        
+
         console.log(`🆕 Criando pedido: ${packageType} para ${customer_email}`);
-        
+
         // Gerar pagamento PIX
         const pixPayment = await generatePixPayment(
             selectedPackage.price,
@@ -230,7 +230,7 @@ app.post('/api/create-order', async (req, res) => {
 // API - Verificar status do pagamento
 app.get('/api/check-payment/:payment_id', async (req, res) => {
     const { payment_id } = req.params;
-    
+
     let connection;
     try {
         connection = await getConnection();
@@ -248,7 +248,7 @@ app.get('/api/check-payment/:payment_id', async (req, res) => {
         }
 
         const order = rows[0];
-        
+
         res.json({
             success: true,
             payment: {
@@ -298,7 +298,7 @@ app.post('/webhook/payment', async (req, res) => {
         }
 
         const order = orders[0];
-        
+
         // Gerar código Purple Coins único
         let purpleCoinCode;
         let codeExists = true;
@@ -306,13 +306,13 @@ app.post('/webhook/payment', async (req, res) => {
 
         while (codeExists && attempts < 10) {
             purpleCoinCode = `PC${order.purple_coins_amount}_${generateCode(8)}`;
-            
+
             // Verificar se código já existe
             const [existing] = await connection.execute(
                 'SELECT id FROM purple_coin_codes WHERE code = ?',
                 [purpleCoinCode]
             );
-            
+
             codeExists = existing.length > 0;
             attempts++;
         }
@@ -489,8 +489,8 @@ app.get('/api/system/info', (req, res) => {
 
 // Health check para Vercel
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
+    res.json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         service: 'JojoVendas Purple Coins'
     });

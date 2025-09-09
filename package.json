@@ -9,7 +9,13 @@
     "vercel-build": "echo 'Build completed'",
     "setup-db": "node setup-database.js"
   },
-  "keywords": ["purple-coins", "pix", "haxball", "vendas", "vercel"],
+  "keywords": [
+    "purple-coins",
+    "pix",
+    "haxball",
+    "vendas",
+    "vercel"
+  ],
   "author": "JojoVendas",
   "license": "MIT",
   "dependencies": {
@@ -18,7 +24,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "qrcode": "^1.5.3",
-    "axios": "^1.5.0"
+    "axios": "^1.5.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
