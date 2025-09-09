@@ -270,11 +270,26 @@ app.get('/api/check-payment/:payment_id', async (req, res) => {
 
 // Webhook - Confirmação de pagamento
 app.post('/webhook/payment', async (req, res) => {
-    const { payment_id, status, external_reference } = req.body;
+    const { payment_id } = req.body;
+    console.log(`🔔 Webhook recebido:`, { payment_id });
 
-    console.log(`🔔 Webhook recebido:`, { payment_id, status });
+    // Buscar status real na API do Mercado Pago
+    let paymentStatus = null;
+    try {
+        const accessToken = process.env.MP_ACCESS_TOKEN;
+        if (!accessToken) throw new Error('MP_ACCESS_TOKEN não definida');
+        const mpResp = await axios.get(
+            `https://api.mercadopago.com/v1/payments/${payment_id}`,
+            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        paymentStatus = mpResp.data.status;
+        console.log('Status real do pagamento:', paymentStatus);
+    } catch (err) {
+        console.error('Erro ao consultar status do pagamento no Mercado Pago:', err.response ? err.response.data : err);
+        return res.status(500).json({ success: false, message: 'Erro ao consultar status do pagamento no Mercado Pago' });
+    }
 
-    if (status !== 'approved' && status !== 'paid') {
+    if (paymentStatus !== 'approved' && paymentStatus !== 'paid') {
         return res.json({ success: true, message: 'Pagamento não aprovado' });
     }
 
