@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 JojoVendas - Purple Coins HaxBall</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .package-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .package-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+        }
+
+        .package-popular {
+            border: 3px solid #ff6b6b;
+        }
+
+        .package-popular::before {
+            content: "MAIS VENDIDO!";
+            position: absolute;
+            top: 0;
+            right: -30px;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 40px;
+            transform: rotate(45deg);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .package-title {
+            font-size: 1.8rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .package-coins {
+            font-size: 3rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .package-price {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .package-discount {
+            background: #4ecdc4;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .package-description {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .package-features {
+            list-style: none;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .package-features li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .package-features li:before {
+            content: "✅ ";
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .buy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .payment-modal {
+            max-width: 600px;
+        }
+
+        .qr-code {
+            margin: 20px 0;
+        }
+
+        .qr-code img {
+            max-width: 250px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .pix-code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            border: 2px dashed #667eea;
+        }
+
+        .copy-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .status-check {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 60px;
+            opacity: 0.8;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .info-item i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .packages-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 JojoVendas Purple Coins</h1>
+            <p>Compre Purple Coins para HaxBall DreamTeam com PIX</p>
+        </div>
+
+        <div class="info-section">
+            <h2 style="text-align: center; color: #667eea; margin-bottom: 20px;">
+                🎯 Como Funciona
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>1. Escolha seu Pacote</h3>
+                    <p>Selecione o pacote de Purple Coins que deseja comprar</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-qrcode"></i>
+                    <h3>2. Pague com PIX</h3>
+                    <p>Escaneie o QR Code ou copie o código PIX para pagar</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-ticket-alt"></i>
+                    <h3>3. Receba seu Código</h3>
+                    <p>Após o pagamento, receba automaticamente seu código</p>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>4. Use no Discord</h3>
+                    <p>Digite <code>/codigo SEU_CODIGO</code> no servidor do bot</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="packages-grid">
+            <div class="package-card">
+                <div class="package-title">🌟 Starter Pack</div>
+                <div class="package-coins">100 PC</div>
+                <div class="package-price">R$ 5,00</div>
+                <div class="package-description">Pacote inicial perfeito para começar sua jornada</div>
+                <ul class="package-features">
+                    <li>100 Purple Coins</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte 24/7</li>
+                    <li>Entrega instantânea</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('starter')">
+                    🛒 Comprar Agora
+                </button>
+            </div>
+
+            <div class="package-card package-popular">
+                <div class="package-title">🔥 Popular Pack</div>
+                <div class="package-coins">500 PC</div>
+                <div class="package-price">R$ 20,00</div>
+                <div class="package-discount">20% OFF</div>
+                <div class="package-description">Nosso pacote mais vendido com desconto especial</div>
+                <ul class="package-features">
+                    <li>500 Purple Coins</li>
+                    <li>Economia de R$ 5,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte prioritário</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('popular')">
+                    🔥 Comprar Popular
+                </button>
+            </div>
+
+            <div class="package-card">
+                <div class="package-title">💎 Premium Pack</div>
+                <div class="package-coins">1000 PC</div>
+                <div class="package-price">R$ 35,00</div>
+                <div class="package-discount">30% OFF</div>
+                <div class="package-description">Pacote premium com máximo desconto</div>
+                <ul class="package-features">
+                    <li>1000 Purple Coins</li>
+                    <li>Economia de R$ 15,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte VIP</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('premium')">
+                    💎 Comprar Premium
+                </button>
+            </div>
+
+            <div class="package-card">
+                <div class="package-title">🚀 Ultimate Pack</div>
+                <div class="package-coins">2500 PC</div>
+                <div class="package-price">R$ 75,00</div>
+                <div class="package-discount">40% OFF</div>
+                <div class="package-description">Pacote ultimate para jogadores dedicados</div>
+                <ul class="package-features">
+                    <li>2500 Purple Coins</li>
+                    <li>Economia de R$ 50,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte exclusivo</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('ultimate')">
+                    🚀 Comprar Ultimate
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🎮 Sistema desenvolvido para HaxBall DreamTeam | 🔒 Pagamentos seguros via PIX</p>
+            <p>💬 Suporte: Discord @jojos | 📧 Email: suporte@jojovendas.com</p>
+        </div>
+    </div>
+
+    <!-- Modal de Compra -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('purchaseModal')">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Finalizar Compra</h2>
+                <p id="modalSubtitle">Preencha seus dados para continuar</p>
+            </div>
+            <form id="purchaseForm">
+                <div class="form-group">
+                    <label for="customerName">Nome Completo:</label>
+                    <input type="text" id="customerName" required placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email:</label>
+                    <input type="email" id="customerEmail" required placeholder="seu@email.com">
+                </div>
+                <button type="submit" class="buy-btn">
+                    🎯 Gerar PIX
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Pagamento -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal">
+            <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            <div class="modal-header">
+                <h2>💳 Pagamento PIX</h2>
+                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX</p>
+            </div>
+            
+            <div id="paymentContent">
+                <div class="qr-code">
+                    <img id="qrCodeImage" src="" alt="QR Code PIX">
+                </div>
+                
+                <div class="pix-code">
+                    <strong>Código PIX:</strong>
+                    <div id="pixCodeText"></div>
+                    <button class="copy-btn" onclick="copyPixCode()">
+                        📋 Copiar Código
+                    </button>
+                </div>
+
+                <div class="status-check">
+                    <h3>⏳ Aguardando Pagamento...</h3>
+                    <p>Status será atualizado automaticamente após o pagamento</p>
+                    <div style="margin-top: 15px;">
+                        <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
+                            🔄 Verificar Status
+                        </button>
+                        <button class="buy-btn" onclick="simulatePayment()" style="width: auto; background: #28a745;">
+                            ⚡ Simular Pagamento (TESTE)
+                        </button>
+                    </div>
+                </div>
+
+                <div id="successContent" style="display: none;">
+                    <div class="success-message">
+                        <h3>🎉 Pagamento Confirmado!</h3>
+                        <p>Seu código Purple Coins:</p>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">
+                            <span id="purpleCoinCode"></span>
+                        </div>
+                        <p><strong>Use o comando:</strong> <code>/codigo SEU_CODIGO</code> no Discord</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPackage = null;
+        let currentPaymentId = null;
+
+        const packages = {
+            starter: {
+                name: 'Starter Pack',
+                purple_coins: 100,
+                price: 5.00,
+                description: 'Pacote inicial perfeito para começar'
+            },
+            popular: {
+                name: 'Popular Pack',
+                purple_coins: 500,
+                price: 20.00,
+                description: 'Nosso pacote mais vendido'
+            },
+            premium: {
+                name: 'Premium Pack',
+                purple_coins: 1000,
+                price: 35.00,
+                description: 'Pacote premium com desconto'
+            },
+            ultimate: {
+                name: 'Ultimate Pack',
+                purple_coins: 2500,
+                price: 75.00,
+                description: 'Pacote ultimate completo'
+            }
+        };
+
+        function openPurchaseModal(packageType) {
+            currentPackage = packageType;
+            const pkg = packages[packageType];
+            
+            document.getElementById('modalTitle').textContent = `Comprar ${pkg.name}`;
+            document.getElementById('modalSubtitle').textContent = 
+                `${pkg.purple_coins} Purple Coins por R$ ${pkg.price.toFixed(2)}`;
+            
+            document.getElementById('purchaseModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+
+            try {
+                const response = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        package: currentPackage,
+                        customer_name: customerName,
+                        customer_email: customerEmail
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentPaymentId = data.order.payment.id;
+                    
+                    document.getElementById('qrCodeImage').src = data.order.payment.qr_code;
+                    document.getElementById('pixCodeText').textContent = data.order.payment.pix_code;
+                    document.getElementById('paymentInfo').textContent = 
+                        `${data.order.package.name} - R$ ${data.order.payment.amount.toFixed(2)}`;
+                    
+                    closeModal('purchaseModal');
+                    document.getElementById('paymentModal').style.display = 'block';
+                } else {
+                    alert('Erro ao criar pedido: ' + data.message);
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        });
+
+        function copyPixCode() {
+            const pixCode = document.getElementById('pixCodeText').textContent;
+            navigator.clipboard.writeText(pixCode).then(() => {
+                alert('Código PIX copiado para a área de transferência!');
+            });
+        }
+
+        async function checkPaymentStatus() {
+            if (!currentPaymentId) return;
+
+            try {
+                const response = await fetch(`/api/check-payment/${currentPaymentId}`);
+                const data = await response.json();
+
+                if (data.success && data.payment.status === 'paid') {
+                    document.getElementById('purpleCoinCode').textContent = data.payment.purple_coin_code;
+                    document.getElementById('successContent').style.display = 'block';
+                    document.querySelector('.status-check').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro ao verificar pagamento:', error);
+            }
+        }
+
+        async function simulatePayment() {
+            if (!currentPaymentId) return;
+
+            try {
+                const response = await fetch('/api/simulate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        payment_id: currentPaymentId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    setTimeout(() => {
+                        checkPaymentStatus();
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Erro ao simular pagamento:', error);
+            }
+        }
+
+        // Auto-verificar pagamento a cada 5 segundos
+        setInterval(() => {
+            if (currentPaymentId && document.getElementById('paymentModal').style.display === 'block') {
+                checkPaymentStatus();
+            }
+        }, 5000);
+
+        // Fechar modal clicando fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
