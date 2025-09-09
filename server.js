@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const QRCode = require('qrcode');
-const Pix = require('pix-payload');
+const axios = require('axios');
 const crypto = require('crypto');
 require('dotenv').config();
 
@@ -71,48 +71,45 @@ function generateCode(length = 12) {
 
 
 
-// Função para gerar pagamento PIX usando pix-payload
+// Função para gerar pagamento PIX usando a API do Mercado Pago
 async function generatePixPayment(amount, description) {
     try {
-        const paymentId = crypto.randomUUID();
-        const txId = paymentId.substring(0, 8);
-        const pixKey = process.env.PIX_KEY;
-        if (!pixKey) {
-            throw new Error('PIX_KEY não definida nas variáveis de ambiente!');
+        const accessToken = process.env.MP_ACCESS_TOKEN;
+        if (!accessToken) {
+            throw new Error('MP_ACCESS_TOKEN não definida nas variáveis de ambiente!');
         }
-        const payload = Pix({
-            pixKey: pixKey,
-            merchantName: 'JOJO VENDAS',
-            merchantCity: 'SAO PAULO',
-            amount: amount,
-            transactionId: txId,
-            message: description || 'Purple Coins'
-        });
-        const pixCode = payload.payload();
-        // Gerar QR Code com maior qualidade
-        const qrCodeOptions = {
-            errorCorrectionLevel: 'M',
-            type: 'image/png',
-            quality: 0.92,
-            margin: 1,
-            color: {
-                dark: '#000000',
-                light: '#FFFFFF'
-            },
-            width: 300
+        const body = {
+            transaction_amount: amount,
+            description: description || 'Purple Coins',
+            payment_method_id: 'pix',
+            payer: {
+                email: 'comprador@exemplo.com' // Você pode trocar para o email real do cliente se quiser
+            }
         };
-        const qrCodeBase64 = await QRCode.toDataURL(pixCode, qrCodeOptions);
+        const response = await axios.post(
+            'https://api.mercadopago.com/v1/payments',
+            body,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        const { id, point_of_interaction } = response.data;
+        const qrCode = point_of_interaction.transaction_data.qr_code;
+        const qrCodeBase64 = point_of_interaction.transaction_data.qr_code_base64;
         return {
-            payment_id: paymentId,
-            pix_code: pixCode,
+            payment_id: id,
+            pix_code: qrCode,
             qr_code_base64: qrCodeBase64,
             amount: amount,
             status: 'pending',
-            tx_id: txId
+            tx_id: id
         };
     } catch (error) {
-        console.error('Erro ao gerar PIX:', error);
-        throw new Error('Erro ao gerar pagamento PIX');
+        console.error('Erro ao gerar PIX via Mercado Pago:', error.response ? error.response.data : error);
+        throw new Error('Erro ao gerar pagamento PIX via Mercado Pago');
     }
 }
 
