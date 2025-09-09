@@ -1,3 +1,43 @@
+// Limpeza de pedidos PIX pendentes há mais de 5 minutos
+app.post('/api/cleanup-pending-orders', async (req, res) => {
+    let connection;
+    const expiredOrders = [];
+    try {
+        connection = await getConnection();
+        // Busca pedidos pendentes há mais de 5 minutos
+        const [orders] = await connection.execute(`
+            SELECT id, payment_id, created_at FROM pix_orders
+            WHERE status = 'pending' AND created_at < (NOW() - INTERVAL 5 MINUTE)
+        `);
+        for (const order of orders) {
+            // Cancela no Mercado Pago
+            try {
+                await axios.put(
+                    `https://api.mercadopago.com/v1/payments/${order.payment_id}`,
+                    { status: 'cancelled' },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
+                        }
+                    }
+                );
+            } catch (err) {
+                // Pode já estar cancelado, ignora erro
+            }
+            // Atualiza status para expired e remove pix_code
+            await connection.execute(
+                'UPDATE pix_orders SET status = \'expired\', pix_code = NULL WHERE id = ?',
+                [order.id]
+            );
+            expiredOrders.push(order.payment_id);
+        }
+        res.json({ success: true, expired: expiredOrders });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
