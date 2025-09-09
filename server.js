@@ -236,6 +236,7 @@ app.post('/api/create-order', async (req, res) => {
 
         console.log(`✅ PIX gerado: ${pixPayment.payment_id}`);
 
+
         // Salvar pedido no banco
         await connection.execute(`
             INSERT INTO pix_orders (
@@ -254,6 +255,19 @@ app.post('/api/create-order', async (req, res) => {
             pixPayment.pix_code
         ]);
 
+        // Buscar created_at para calcular expires_at
+        const [rows] = await connection.execute(
+            'SELECT created_at FROM pix_orders WHERE id = ?',
+            [orderId]
+        );
+        let createdAt = rows[0]?.created_at;
+        let expiresAt = null;
+        if (createdAt) {
+            const dt = new Date(createdAt);
+            dt.setMinutes(dt.getMinutes() + 5);
+            expiresAt = dt.toISOString();
+        }
+
         console.log(`💾 Pedido salvo no banco: ${orderId}`);
 
         res.json({
@@ -268,7 +282,8 @@ app.post('/api/create-order', async (req, res) => {
                     id: pixPayment.payment_id,
                     qr_code: pixPayment.qr_code_base64,
                     pix_code: pixPayment.pix_code,
-                    amount: selectedPackage.price
+                    amount: selectedPackage.price,
+                    expires_at: expiresAt
                 }
             }
         });

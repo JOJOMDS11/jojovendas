@@ -682,8 +682,13 @@
         function setupPaymentModal(order) {
             try {
                 // Atualizar informações do pagamento
-                document.getElementById('paymentInfo').textContent =
-                    `${order.package.name} - R$ ${order.payment.amount.toFixed(2)}`;
+                let infoText = `${order.package.name} - R$ ${order.payment.amount.toFixed(2)}`;
+                if (order.payment.expires_at) {
+                    const expiresDate = new Date(order.payment.expires_at);
+                    const hora = expiresDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    infoText += ` | Expira às ${hora}`;
+                }
+                document.getElementById('paymentInfo').textContent = infoText;
 
                 // Configurar QR Code
                 if (order.payment.qr_code && order.payment.qr_code.startsWith('data:image')) {
