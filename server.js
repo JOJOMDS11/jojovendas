@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
-const crypto = require('crypto');
 const QRCode = require('qrcode');
+const Pix = require('pix-payload');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -68,33 +69,26 @@ function generateCode(length = 12) {
     return result;
 }
 
-// Função para gerar PIX Code válido
-function generatePixCode(amount, description, recipientName = 'JOJO VENDAS') {
-    const formatAmount = amount.toFixed(2);
-    const merchantName = recipientName.substring(0, 25);
-    const merchantCity = 'SAO PAULO';
-    const txId = generateCode(8);
-    // Sempre usar a chave PIX real do ambiente
-    const pixKey = process.env.PIX_KEY;
-    if (!pixKey) {
-        throw new Error('PIX_KEY não definida nas variáveis de ambiente!');
-    }
-    // Formato simplificado do PIX
-    const pixCode = `00020126580014BR.GOV.BCB.PIX0136${pixKey}520400005303986540${formatAmount.length}${formatAmount}5925${merchantName}6009${merchantCity}62070503${txId}6304`;
-    return {
-        code: pixCode,
-        tx_id: txId
-    };
-}
 
-// Função para gerar pagamento PIX atualizada
+
+// Função para gerar pagamento PIX usando pix-payload
 async function generatePixPayment(amount, description) {
-    // Aqui você pode integrar com Mercado Pago ou outro PSP real
-    // Exemplo: garantir que nunca retorna dados de teste
     try {
         const paymentId = crypto.randomUUID();
-        const pixData = generatePixCode(amount, description);
-
+        const txId = paymentId.substring(0, 8);
+        const pixKey = process.env.PIX_KEY;
+        if (!pixKey) {
+            throw new Error('PIX_KEY não definida nas variáveis de ambiente!');
+        }
+        const payload = Pix({
+            pixKey: pixKey,
+            merchantName: 'JOJO VENDAS',
+            merchantCity: 'SAO PAULO',
+            amount: amount,
+            transactionId: txId,
+            message: description || 'Purple Coins'
+        });
+        const pixCode = payload.payload();
         // Gerar QR Code com maior qualidade
         const qrCodeOptions = {
             errorCorrectionLevel: 'M',
@@ -107,16 +101,14 @@ async function generatePixPayment(amount, description) {
             },
             width: 300
         };
-
-        const qrCodeBase64 = await QRCode.toDataURL(pixData.code, qrCodeOptions);
-
+        const qrCodeBase64 = await QRCode.toDataURL(pixCode, qrCodeOptions);
         return {
             payment_id: paymentId,
-            pix_code: pixData.code,
+            pix_code: pixCode,
             qr_code_base64: qrCodeBase64,
             amount: amount,
             status: 'pending',
-            tx_id: pixData.tx_id
+            tx_id: txId
         };
     } catch (error) {
         console.error('Erro ao gerar PIX:', error);

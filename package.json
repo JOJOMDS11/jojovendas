@@ -19,12 +19,13 @@
   "author": "JojoVendas",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "mysql2": "^3.6.0",
+    "axios": "^1.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "pix-payload": "^1.0.4",
     "qrcode": "^1.5.3",
-    "axios": "^1.5.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
