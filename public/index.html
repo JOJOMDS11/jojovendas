@@ -411,4 +411,478 @@
                 <div class="info-item">
                     <i class="fas fa-gamepad"></i>
                     <h3>4. Use no Discord</h3>
-                    <p>Digite <code
+                    <p>Digite <code>/codigo SEU_CODIGO</code> no servidor do bot</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="packages-grid">
+            <div class="package-card">
+                <div class="package-title">🌟 Starter Pack</div>
+                <div class="package-coins">100 PC</div>
+                <div class="package-price">R$ 5,00</div>
+                <div class="package-description">Pacote inicial perfeito para começar sua jornada</div>
+                <ul class="package-features">
+                    <li>100 Purple Coins</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte 24/7</li>
+                    <li>Entrega instantânea</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('starter')">
+                    🛒 Comprar Agora
+                </button>
+            </div>
+
+            <div class="package-card package-popular">
+                <div class="package-title">🔥 Popular Pack</div>
+                <div class="package-coins">500 PC</div>
+                <div class="package-price">R$ 20,00</div>
+                <div class="package-discount">20% OFF</div>
+                <div class="package-description">Nosso pacote mais vendido com desconto especial</div>
+                <ul class="package-features">
+                    <li>500 Purple Coins</li>
+                    <li>Economia de R$ 5,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte prioritário</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('popular')">
+                    🔥 Comprar Popular
+                </button>
+            </div>
+
+            <div class="package-card">
+                <div class="package-title">💎 Premium Pack</div>
+                <div class="package-coins">1000 PC</div>
+                <div class="package-price">R$ 35,00</div>
+                <div class="package-discount">30% OFF</div>
+                <div class="package-description">Pacote premium com máximo desconto</div>
+                <ul class="package-features">
+                    <li>1000 Purple Coins</li>
+                    <li>Economia de R$ 15,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte VIP</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('premium')">
+                    💎 Comprar Premium
+                </button>
+            </div>
+
+            <div class="package-card">
+                <div class="package-title">🚀 Ultimate Pack</div>
+                <div class="package-coins">2500 PC</div>
+                <div class="package-price">R$ 75,00</div>
+                <div class="package-discount">40% OFF</div>
+                <div class="package-description">Pacote ultimate para jogadores dedicados</div>
+                <ul class="package-features">
+                    <li>2500 Purple Coins</li>
+                    <li>Economia de R$ 50,00</li>
+                    <li>Código válido por 30 dias</li>
+                    <li>Suporte exclusivo</li>
+                </ul>
+                <button class="buy-btn" onclick="openPurchaseModal('ultimate')">
+                    🚀 Comprar Ultimate
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🎮 Sistema desenvolvido para HaxBall DreamTeam | 🔒 Pagamentos seguros via PIX</p>
+            <p>💬 Suporte: <a href="https://discord.gg/aZdM3t86ZW" target="_blank"
+                    style="color:#fff;text-decoration:underline;font-weight:bold;">DISCORD CLIQUE AQUI</a> | 📧 Email:
+                padrejojos@gmail.com</p>
+        </div>
+    </div>
+
+    <!-- Modal de Compra -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('purchaseModal')">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Finalizar Compra</h2>
+                <p id="modalSubtitle">Preencha seus dados para continuar</p>
+            </div>
+            <form id="purchaseForm">
+                <div class="form-group">
+                    <label for="customerName">Nome Completo:</label>
+                    <input type="text" id="customerName" required placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email:</label>
+                    <input type="email" id="customerEmail" required placeholder="seu@email.com">
+                </div>
+                <button type="submit" class="buy-btn" id="submitBtn">
+                    🎯 Gerar PIX
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Pagamento -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-modal">
+            <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
+            <div class="modal-header">
+                <h2>💳 Pagamento PIX</h2>
+                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX</p>
+            </div>
+
+            <div id="paymentContent">
+                <div class="qr-code">
+                    <img id="qrCodeImage" src="" alt="QR Code PIX" style="display: none;">
+                    <div id="qrCodeError" style="display: none; color: #ff6b6b; padding: 20px;">
+                        ❌ Erro ao carregar QR Code
+                    </div>
+                </div>
+
+                <div class="pix-code">
+                    <strong>Código PIX:</strong>
+                    <div id="pixCodeText">Gerando código...</div>
+                    <button class="copy-btn" onclick="copyPixCode()" id="copyBtn" disabled>
+                        📋 Copiar Código
+                    </button>
+                </div>
+
+                <div class="status-check">
+                    <h3>⏳ Aguardando Pagamento...</h3>
+                    <p>Status será atualizado automaticamente após o pagamento</p>
+                    <div style="margin-top: 15px;">
+                        <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
+                            🔄 Verificar Status
+                        </button>
+                        <button class="simulate-btn" onclick="simulatePayment()" id="simulateBtn" style="display: none;">
+                            🧪 Simular Pagamento
+                        </button>
+                    </div>
+                </div>
+
+                <div id="successContent" style="display: none;">
+                    <div class="success-message">
+                        <h3>🎉 Pagamento Confirmado!</h3>
+                        <p>Seu código Purple Coins:</p>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 2px dashed #28a745;">
+                            <span id="purpleCoinCode"></span>
+                        </div>
+                        <p><strong>Use o comando:</strong> <code>/codigo SEU_CODIGO</code> no Discord</p>
+                        <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                            💾 Guarde bem este código! Ele é válido por 30 dias.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPackage = null;
+        let currentPaymentId = null;
+        let paymentCheckInterval = null;
+        let isTestMode = window.location.hostname === 'localhost' || window.location.hostname.includes('vercel.app');
+
+        const packages = {
+            starter: {
+                name: 'Starter Pack',
+                purple_coins: 100,
+                price: 5.00,
+                description: 'Pacote inicial perfeito para começar'
+            },
+            popular: {
+                name: 'Popular Pack',
+                purple_coins: 500,
+                price: 20.00,
+                description: 'Nosso pacote mais vendido'
+            },
+            premium: {
+                name: 'Premium Pack',
+                purple_coins: 1000,
+                price: 35.00,
+                description: 'Pacote premium com desconto'
+            },
+            ultimate: {
+                name: 'Ultimate Pack',
+                purple_coins: 2500,
+                price: 75.00,
+                description: 'Pacote ultimate completo'
+            }
+        };
+
+        // Mostrar modo teste
+        if (isTestMode) {
+            document.getElementById('testMode').style.display = 'block';
+        }
+
+        function openPurchaseModal(packageType) {
+            currentPackage = packageType;
+            const pkg = packages[packageType];
+
+            document.getElementById('modalTitle').textContent = `Comprar ${pkg.name}`;
+            document.getElementById('modalSubtitle').textContent =
+                `${pkg.purple_coins} Purple Coins por R$ ${pkg.price.toFixed(2)}`;
+
+            document.getElementById('purchaseModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            
+            // Limpar interval se existir
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+            }
+
+            // Reset variables
+            if (modalId === 'paymentModal') {
+                currentPaymentId = null;
+                resetPaymentModal();
+            }
+        }
+
+        function resetPaymentModal() {
+            document.getElementById('qrCodeImage').style.display = 'none';
+            document.getElementById('qrCodeError').style.display = 'none';
+            document.getElementById('pixCodeText').textContent = 'Gerando código...';
+            document.getElementById('copyBtn').disabled = true;
+            document.getElementById('successContent').style.display = 'none';
+            document.querySelector('.status-check').style.display = 'block';
+        }
+
+        function showError(message) {
+            alert('❌ ' + message);
+            console.error(message);
+        }
+
+        document.getElementById('purchaseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerEmail = document.getElementById('customerEmail').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!customerName || !customerEmail) {
+                showError('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            // Loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="loading"></div> Gerando PIX...';
+            submitBtn.disabled = true;
+
+            try {
+                console.log('📝 Criando pedido:', { currentPackage, customerName, customerEmail });
+
+                const response = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        package: currentPackage,
+                        customer_name: customerName,
+                        customer_email: customerEmail
+                    })
+                });
+
+                const data = await response.json();
+                console.log('📦 Resposta do servidor:', data);
+
+                if (data.success) {
+                    currentPaymentId = data.order.payment.id;
+                    
+                    // Configurar modal de pagamento
+                    setupPaymentModal(data.order);
+                    
+                    closeModal('purchaseModal');
+                    document.getElementById('paymentModal').style.display = 'block';
+                    
+                    // Iniciar verificação automática
+                    startPaymentCheck();
+                } else {
+                    showError('Erro ao criar pedido: ' + (data.message || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                console.error('❌ Erro de conexão:', error);
+                showError('Erro de conexão. Verifique sua internet e tente novamente.');
+            } finally {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        function setupPaymentModal(order) {
+            try {
+                // Atualizar informações do pagamento
+                document.getElementById('paymentInfo').textContent =
+                    `${order.package.name} - R$ ${order.payment.amount.toFixed(2)}`;
+
+                // Configurar QR Code
+                if (order.payment.qr_code && order.payment.qr_code.startsWith('data:image')) {
+                    const qrImg = document.getElementById('qrCodeImage');
+                    qrImg.src = order.payment.qr_code;
+                    qrImg.style.display = 'block';
+                    qrImg.onerror = function() {
+                        console.error('❌ Erro ao carregar QR Code');
+                        document.getElementById('qrCodeError').style.display = 'block';
+                        this.style.display = 'none';
+                    };
+                    document.getElementById('qrCodeError').style.display = 'none';
+                } else {
+                    document.getElementById('qrCodeImage').style.display = 'none';
+                    document.getElementById('qrCodeError').style.display = 'block';
+                    console.error('❌ QR Code inválido:', order.payment.qr_code);
+                }
+
+                // Configurar código PIX
+                if (order.payment.pix_code) {
+                    document.getElementById('pixCodeText').textContent = order.payment.pix_code;
+                    document.getElementById('copyBtn').disabled = false;
+                } else {
+                    document.getElementById('pixCodeText').textContent = 'Erro ao gerar código PIX';
+                    document.getElementById('copyBtn').disabled = true;
+                }
+
+                // Mostrar botão de simulação em modo teste
+                if (isTestMode) {
+                    document.getElementById('simulateBtn').style.display = 'inline-block';
+                }
+
+                console.log('✅ Modal de pagamento configurado');
+            } catch (error) {
+                console.error('❌ Erro ao configurar modal:', error);
+                showError('Erro ao configurar pagamento');
+            }
+        }
+
+        function copyPixCode() {
+            const pixCode = document.getElementById('pixCodeText').textContent;
+            
+            if (!pixCode || pixCode === 'Gerando código...' || pixCode.includes('Erro')) {
+                showError('Código PIX não disponível');
+                return;
+            }
+
+            navigator.clipboard.writeText(pixCode).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Copiado!';
+                copyBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.style.background = '#4ecdc4';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                // Fallback para dispositivos que não suportam clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = pixCode;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Código PIX copiado para a área de transferência!');
+            });
+        }
+
+        async function checkPaymentStatus() {
+            if (!currentPaymentId) {
+                console.log('⚠️  Nenhum payment_id para verificar');
+                return;
+            }
+
+            try {
+                console.log('🔍 Verificando pagamento:', currentPaymentId);
+                
+                const response = await fetch(`/api/check-payment/${currentPaymentId}`);
+                const data = await response.json();
+
+                console.log('📊 Status do pagamento:', data);
+
+                if (data.success && data.payment.status === 'paid') {
+                    // Pagamento aprovado!
+                    showPaymentSuccess(data.payment.purple_coin_code);
+                }
+            } catch (error) {
+                console.error('❌ Erro ao verificar pagamento:', error);
+            }
+        }
+
+        function showPaymentSuccess(code) {
+            document.getElementById('purpleCoinCode').textContent = code;
+            document.getElementById('successContent').style.display = 'block';
+            document.querySelector('.status-check').style.display = 'none';
+            
+            // Parar verificação automática
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+            }
+
+            console.log('🎉 Pagamento confirmado! Código:', code);
+        }
+
+        function startPaymentCheck() {
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+            }
+            
+            // Verificar a cada 5 segundos
+            paymentCheckInterval = setInterval(checkPaymentStatus, 5000);
+            console.log('⏰ Verificação automática iniciada');
+        }
+
+        // Função para simular pagamento (apenas em modo teste)
+        async function simulatePayment() {
+            if (!isTestMode || !currentPaymentId) return;
+
+            try {
+                console.log('🧪 Simulando pagamento:', currentPaymentId);
+                
+                const response = await fetch('/api/simulate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        payment_id: currentPaymentId
+                    })
+                });
+
+                const data = await response.json();
+                console.log('🧪 Resposta da simulação:', data);
+
+                if (data.success) {
+                    // Aguardar um pouco e verificar status
+                    setTimeout(checkPaymentStatus, 2000);
+                } else {
+                    showError('Erro ao simular pagamento: ' + data.message);
+                }
+            } catch (error) {
+                console.error('❌ Erro na simulação:', error);
+                showError('Erro ao simular pagamento');
+            }
+        }
+
+        // Fechar modal clicando fora
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                const modalId = event.target.id;
+                closeModal(modalId);
+            }
+        }
+
+        // Cleanup ao sair da página
+        window.addEventListener('beforeunload', () => {
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+            }
+        });
+
+        // Log inicial
+        console.log('🎮 JojoVendas Purple Coins - Sistema carregado');
+        console.log('🌐 Modo:', isTestMode ? 'TESTE' : 'PRODUÇÃO');
+    </script>
+</body>
+
+</html>
