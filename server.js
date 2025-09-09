@@ -1,7 +1,15 @@
+
 // ================== IMPORTS E INICIALIZAÇÃO ==================
+const express = require('express');
+const cors = require('cors');
+const mysql = require('mysql2/promise');
+const QRCode = require('qrcode');
+const axios = require('axios');
+const crypto = require('crypto');
+require('dotenv').config();
 
-
-
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
