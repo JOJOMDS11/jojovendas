@@ -1,3 +1,6 @@
+
+// ... (mantém os imports e inicialização do app aqui)
+
 // Limpeza de pedidos PIX pendentes há mais de 5 minutos
 app.post('/api/cleanup-pending-orders', async (req, res) => {
     let connection;
@@ -614,6 +617,8 @@ process.on('SIGINT', async () => {
     });
 });
 
+
+// Exporta o app apenas após todas as definições
 
 // Exporta o app apenas após todas as definições
 module.exports = app;
