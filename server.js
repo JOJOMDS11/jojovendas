@@ -98,7 +98,11 @@ async function generatePixPayment(amount, description, idempotencyKey) {
         );
         const { id, point_of_interaction } = response.data;
         const qrCode = point_of_interaction.transaction_data.qr_code;
-        const qrCodeBase64 = point_of_interaction.transaction_data.qr_code_base64;
+        let qrCodeBase64 = point_of_interaction.transaction_data.qr_code_base64;
+        // Garante prefixo para exibir no <img>
+        if (qrCodeBase64 && !qrCodeBase64.startsWith('data:image')) {
+            qrCodeBase64 = 'data:image/png;base64,' + qrCodeBase64;
+        }
         return {
             payment_id: id,
             pix_code: qrCode,
