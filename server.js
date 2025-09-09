@@ -474,6 +474,22 @@ app.get('/api/system/info', (req, res) => {
     });
 });
 
+// Debug - informações seguras do ambiente (NÃO EXIBE TOKENS)
+app.get('/api/debug/env', (req, res) => {
+    const env = process.env.NODE_ENV || 'development';
+    const hasMpToken = !!process.env.MP_ACCESS_TOKEN;
+    const mpTokenLooksProduction = hasMpToken && !/test|sandbox|sandbox_token/i.test(process.env.MP_ACCESS_TOKEN);
+
+    res.json({
+        success: true,
+        environment: env,
+        has_mp_token: hasMpToken,
+        mp_token_looks_production: mpTokenLooksProduction,
+        pix_provider: 'mercadopago',
+        note: 'This endpoint never returns secret values. If mp_token_looks_production=false, set MP_ACCESS_TOKEN in Vercel and redeploy.'
+    });
+});
+
 // Health check para Vercel
 app.get('/api/health', (req, res) => {
     res.json({
