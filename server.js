@@ -22,9 +22,7 @@ const dbConfig = {
     database: process.env.DB_NAME,
     port: parseInt(process.env.DB_PORT) || 3306,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    connectTimeout: 60000,
-    acquireTimeout: 60000,
-    timeout: 60000
+    connectTimeout: 60000
 };
 
 // Pacotes de Purple Coins
