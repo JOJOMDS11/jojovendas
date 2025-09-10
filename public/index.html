@@ -743,9 +743,18 @@
 
                 console.log('📊 Status do pagamento:', data);
 
-                if (data.success && data.payment.status === 'paid') {
-                    // Pagamento aprovado!
-                    showPaymentSuccess(data.payment.purple_coin_code);
+                if (data.success) {
+                    if (data.payment.status === 'paid') {
+                        // Pagamento aprovado!
+                        showPaymentSuccess(data.payment.purple_coin_code);
+                    } else if (data.payment.status === 'expired') {
+                        // Pagamento expirado
+                        showPaymentExpired();
+                    } else {
+                        // Mantém mensagem aguardando
+                        const box = document.getElementById('pixStatusBox');
+                        if (box) box.innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
+                    }
                 }
             } catch (error) {
                 console.error('❌ Erro ao verificar pagamento:', error);
@@ -764,6 +773,20 @@
             }
 
             console.log('🎉 Pagamento confirmado! Código:', code);
+        }
+
+        function showPaymentExpired() {
+            // Mostrar mensagem de expirado no modal, se existir
+            const box = document.getElementById('pixStatusBox');
+            if (box) box.innerHTML = '<span style="color:red;">❌ Pagamento expirado</span><br><small>O pedido expirou — gere um novo PIX para tentar novamente.</small>';
+
+            // Parar verificação automática
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                paymentCheckInterval = null;
+            }
+
+            console.log('⚠️ Pagamento expirado (cliente)');
         }
 
         function startPaymentCheck() {
@@ -802,30 +825,30 @@
             document.getElementById('pixCodeBox').innerHTML = '<b>Código PIX:</b><br><span style="word-break:break-all;">' + order.payment.pix_code + '</span>';
             document.getElementById('pixOrderIdBox').innerHTML = '<b>Número do Pedido:</b> <span style="font-family:monospace;">' + order.id + '</span>';
             document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
-            document.getElementById('copyPixCodeBtn').onclick = function() {
+            document.getElementById('copyPixCodeBtn').onclick = function () {
                 navigator.clipboard.writeText(order.payment.pix_code);
             };
-            document.getElementById('checkPixStatusBtn').onclick = function() {
+            document.getElementById('checkPixStatusBtn').onclick = function () {
                 checkPixStatus(order.payment.id, order.id);
             };
             document.getElementById('pixModal').style.display = 'flex';
         }
 
         function checkPixStatus(paymentId, orderId) {
-          fetch('/api/check-payment/' + paymentId)
-            .then(res => res.json())
-            .then(data => {
-              if (data.success && data.payment.status === 'paid') {
-                document.getElementById('pixStatusBox').innerHTML = '<span style="color:green;">✅ Pagamento aprovado!</span><br><b>Código resgate:</b> ' + (data.payment.purple_coin_code || 'Gerando...');
-              } else if (data.success && data.payment.status === 'expired') {
-                document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">❌ Pagamento expirado</span>';
-              } else {
-                document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
-              }
-            })
-            .catch(() => {
-              document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">Erro ao verificar status</span>';
-            });
+            fetch('/api/check-payment/' + paymentId)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.payment.status === 'paid') {
+                        document.getElementById('pixStatusBox').innerHTML = '<span style="color:green;">✅ Pagamento aprovado!</span><br><b>Código resgate:</b> ' + (data.payment.purple_coin_code || 'Gerando...');
+                    } else if (data.success && data.payment.status === 'expired') {
+                        document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">❌ Pagamento expirado</span>';
+                    } else {
+                        document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">Erro ao verificar status</span>';
+                });
         }
     </script>
 </body>
