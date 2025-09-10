@@ -646,31 +646,33 @@ app.get('/api/admin/stats', async (req, res) => {
         });
     });
 
-    // Iniciar servidor
-    const server = app.listen(PORT, () => {
-        console.log(`
-🎮 JojoVendas Purple Coins Server
-🌐 Servidor rodando em: http://localhost:${PORT}
-📊 Admin panel: http://localhost:${PORT}/admin
-💰 Loja: http://localhost:${PORT}
-🔗 Webhook: http://localhost:${PORT}/webhook/payment
-🔧 Ambiente: ${process.env.NODE_ENV || 'development'}
-✅ Sistema pronto para uso!
-    `);
-    });
-
-    // Graceful shutdown
-    process.on('SIGINT', async () => {
-        console.log('🔄 Encerrando servidor...');
-        server.close(() => {
-            if (connectionPool) {
-                connectionPool.end();
-            }
-            console.log('✅ Servidor encerrado com sucesso');
-            process.exit(0);
+    // Iniciar servidor localmente (no Vercel nós apenas exportamos o app)
+    if (!process.env.VERCEL) {
+        const server = app.listen(PORT, () => {
+            console.log(`
+    🎮 JojoVendas Purple Coins Server
+    🌐 Servidor rodando em: http://localhost:${PORT}
+    📊 Admin panel: http://localhost:${PORT}/admin
+    💰 Loja: http://localhost:${PORT}
+    🔗 Webhook: http://localhost:${PORT}/webhook/payment
+    🔧 Ambiente: ${process.env.NODE_ENV || 'development'}
+    ✅ Sistema pronto para uso!
+            `);
         });
-    });
 
-    // Exporta o app apenas após todas as definições
+        // Graceful shutdown apenas para execução local
+        process.on('SIGINT', async () => {
+            console.log('🔄 Encerrando servidor...');
+            server.close(() => {
+                if (connectionPool) {
+                    connectionPool.end();
+                }
+                console.log('✅ Servidor encerrado com sucesso');
+                process.exit(0);
+            });
+        });
+    }
+
+    // Exporta o app para o ambiente serverless (Vercel) e para testes
     module.exports = app;
 });
