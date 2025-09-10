@@ -517,10 +517,40 @@ app.get('/admin', (req, res) => {
 
 // API - Stats admin com autenticação
 app.get('/api/admin/stats', async (req, res) => {
-    const auth = req.headers.authorization;
-    if (auth !== `Bearer ${process.env.ADMIN_PASSWORD}`) {
-        return res.status(401).json({ success: false, message: 'Não autorizado' });
+// --- Admin login seguro ---
+const crypto = require('crypto');
+
+// Endpoint de login admin
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+        return res.status(500).json({ success: false, message: 'Senha admin não configurada.' });
     }
+    if (password === adminPassword) {
+        // Gera um token simples (pode ser JWT, mas aqui é só um hash temporário)
+        const token = crypto.createHash('sha256').update(password + Date.now().toString()).digest('hex');
+        // Salva token em memória (pode ser melhorado para produção)
+        global.adminTokens = global.adminTokens || new Set();
+        global.adminTokens.add(token);
+        return res.json({ success: true, token });
+    }
+    return res.json({ success: false });
+});
+
+// Middleware para proteger rotas admin
+function requireAdminAuth(req, res, next) {
+    const auth = req.headers['authorization'];
+    if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ success: false, message: 'Não autorizado' });
+    const token = auth.replace('Bearer ', '');
+    if (!global.adminTokens || !global.adminTokens.has(token)) {
+        return res.status(401).json({ success: false, message: 'Token inválido' });
+    }
+    next();
+}
+    
+// Endpoint de stats admin protegido
+app.get('/api/admin/stats', requireAdminAuth, async (req, res) => {
 
     let connection;
     try {
@@ -645,4 +675,5 @@ process.on('SIGINT', async () => {
 // Exporta o app apenas após todas as definições
 
 // Exporta o app apenas após todas as definições
+module.exports = app;
 module.exports = app;

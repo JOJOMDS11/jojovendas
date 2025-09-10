@@ -323,17 +323,27 @@
     </div>
 
     <script>
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // Login seguro via backend
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('password').value;
-            
-            if (password === 'eojojos') {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('adminContainer').style.display = 'block';
-                loadStats();
-            } else {
-                alert('❌ Senha incorreta!');
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (data.success && data.token) {
+                    localStorage.setItem('admin_token', data.token);
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('adminContainer').style.display = 'block';
+                    loadStats();
+                } else {
+                    alert('❌ Senha incorreta!');
+                }
+            } catch (err) {
+                alert('❌ Erro ao conectar ao servidor');
             }
         });
 
@@ -345,9 +355,11 @@
 
         async function loadStats() {
             try {
-                const response = await fetch('/api/admin/stats');
+                const token = localStorage.getItem('admin_token');
+                const response = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 const data = await response.json();
-
                 if (data.success) {
                     // Atualizar estatísticas
                     document.getElementById('totalOrders').textContent = data.stats.total_orders || 0;
