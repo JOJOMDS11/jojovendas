@@ -78,7 +78,6 @@ app.post('/api/cleanup-pending-orders', async (req, res) => {
 
 
 
-
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -359,14 +358,13 @@ app.post('/webhook/payment', async (req, res) => {
     console.log('Body recebido:', req.body);
 
     // Suporte ao formato do Mercado Pago e ao formato antigo
-    let payment_id = req.body.payment_id;
-    if (!payment_id && req.body.data && req.body.data.id) {
-        payment_id = req.body.data.id;
-    }
+    let payment_id = req.body.payment_id || (req.body.data && req.body.data.id);
+    if (payment_id) payment_id = String(payment_id);
+    console.log(`🔔 Webhook recebido: { payment_id: ${payment_id} }`);
+
     if (!payment_id) {
         return res.status(400).json({ success: false, message: 'payment_id não encontrado no body' });
     }
-    console.log(`🔔 Webhook recebido:`, { payment_id });
 
     // Buscar status real na API do Mercado Pago
     let paymentStatus = null;
@@ -374,14 +372,14 @@ app.post('/webhook/payment', async (req, res) => {
         const accessToken = process.env.MP_ACCESS_TOKEN;
         if (!accessToken) throw new Error('MP_ACCESS_TOKEN não definida');
         const mpResp = await axios.get(
-            `https://api.mercadopago.com/v1/payments/${payment_id}`,
+            `https://api.mercadopago.com/v1/payments/${encodeURIComponent(payment_id)}`,
             { headers: { 'Authorization': `Bearer ${accessToken}` } }
         );
         paymentStatus = mpResp.data.status;
         console.log('Status real do pagamento:', paymentStatus);
     } catch (err) {
         console.error('Erro ao consultar status do pagamento no Mercado Pago:', err.response ? err.response.data : err);
-        return res.status(500).json({ success: false, message: 'Erro ao consultar status do pagamento no Mercado Pago' });
+        return res.status(500).json({ success: false, message: 'Erro ao consultar status do pagamento no Mercado Pago', details: err.response ? err.response.data : err.message });
     }
 
     if (paymentStatus !== 'approved' && paymentStatus !== 'paid') {
