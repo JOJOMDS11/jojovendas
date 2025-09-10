@@ -494,56 +494,20 @@
         </div>
     </div>
 
-    <!-- Modal de Pagamento -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content payment-modal">
-            <button class="close-btn" onclick="closeModal('paymentModal')">&times;</button>
-            <div class="modal-header">
-                <h2>💳 Pagamento PIX</h2>
-                <p id="paymentInfo">Escaneie o QR Code ou copie o código PIX para pagar</p>
-            </div>
-
-            <div id="paymentContent">
-                <div class="qr-code">
-                    <img id="qrCodeImage" src="" alt="QR Code PIX" style="display: none;">
-                    <div id="qrCodeError" style="display: none; color: #ff6b6b; padding: 20px;">
-                        ❌ Erro ao carregar QR Code
-                    </div>
-                </div>
-
-                <div class="pix-code">
-                    <strong>Código PIX:</strong>
-                    <div id="pixCodeText">Gerando código...</div>
-                    <button class="copy-btn" onclick="copyPixCode()" id="copyBtn" disabled>
-                        📋 Copiar Código
-                    </button>
-                </div>
-
-                <div class="status-check">
-                    <h3>⏳ Aguardando Pagamento...</h3>
-                    <p>Status será atualizado automaticamente após o pagamento</p>
-                    <div style="margin-top: 15px;">
-                        <button class="buy-btn" onclick="checkPaymentStatus()" style="width: auto; margin-right: 10px;">
-                            🔄 Verificar Status
-                        </button>
-                    </div>
-                </div>
-
-                <div id="successContent" style="display: none;">
-                    <div class="success-message">
-                        <h3>🎉 Pagamento Confirmado!</h3>
-                        <p>Seu código Purple Coins:</p>
-                        <div
-                            style="font-size: 1.5rem; font-weight: bold; margin: 10px 0; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 2px dashed #28a745;">
-                            <span id="purpleCoinCode"></span>
-                        </div>
-                        <p><strong>Use o comando:</strong> <code>/codigo SEU_CODIGO</code> no Discord</p>
-                        <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
-                            💾 Guarde bem este código! Ele é válido por 30 dias.
-                        </p>
-                    </div>
-                </div>
-            </div>
+    <!-- Modal de Pagamento PIX -->
+    <div id="pixModal" class="modal" style="display:none; align-items: center; justify-content: center;">
+        <div class="modal-content" style="text-align: center; max-width: 400px; margin: auto;">
+            <span class="close" onclick="closePixModal()">&times;</span>
+            <h2 style="margin-bottom: 10px;">💳 Pagamento PIX</h2>
+            <div id="pixPackageInfo"></div>
+            <div id="pixExpiresInfo" style="font-size: 0.95em; color: #888; margin-bottom: 10px;"></div>
+            <div id="pixQrCode" style="margin: 0 auto 10px auto;"></div>
+            <div id="pixCodeBox" style="margin-bottom: 10px;"></div>
+            <div id="pixOrderIdBox" style="margin-bottom: 10px; font-size: 0.95em; color: #666;"></div>
+            <button id="copyPixCodeBtn" class="btn btn-secondary" style="margin-bottom: 10px;">📋 Copiar Código
+            </button>
+            <div id="pixStatusBox" style="margin-bottom: 10px;"></div>
+            <button id="checkPixStatusBtn" class="btn btn-primary">🔄 Verificar Status</button>
         </div>
     </div>
 
@@ -818,6 +782,40 @@
 
         // Log inicial
         console.log('🎮 JojoVendas Purple Coins - Sistema carregado');
+
+        function showPixModal(order) {
+            // Centraliza e exibe informações
+            document.getElementById('pixPackageInfo').innerText = order.package.name + ' - R$ ' + order.payment.amount.toFixed(2);
+            document.getElementById('pixExpiresInfo').innerText = 'Expira às ' + (new Date(order.payment.expires_at)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('pixQrCode').innerHTML = '<img src="' + order.payment.qr_code + '" style="width:180px; height:180px; margin:0 auto; display:block;">';
+            document.getElementById('pixCodeBox').innerHTML = '<b>Código PIX:</b><br><span style="word-break:break-all;">' + order.payment.pix_code + '</span>';
+            document.getElementById('pixOrderIdBox').innerHTML = '<b>Número do Pedido:</b> <span style="font-family:monospace;">' + order.id + '</span>';
+            document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
+            document.getElementById('copyPixCodeBtn').onclick = function() {
+                navigator.clipboard.writeText(order.payment.pix_code);
+            };
+            document.getElementById('checkPixStatusBtn').onclick = function() {
+                checkPixStatus(order.payment.id, order.id);
+            };
+            document.getElementById('pixModal').style.display = 'flex';
+        }
+
+        function checkPixStatus(paymentId, orderId) {
+          fetch('/api/check-payment/' + paymentId)
+            .then(res => res.json())
+            .then(data => {
+              if (data.success && data.payment.status === 'paid') {
+                document.getElementById('pixStatusBox').innerHTML = '<span style="color:green;">✅ Pagamento aprovado!</span><br><b>Código resgate:</b> ' + (data.payment.purple_coin_code || 'Gerando...');
+              } else if (data.success && data.payment.status === 'expired') {
+                document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">❌ Pagamento expirado</span>';
+              } else {
+                document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
+              }
+            })
+            .catch(() => {
+              document.getElementById('pixStatusBox').innerHTML = '<span style="color:red;">Erro ao verificar status</span>';
+            });
+        }
     </script>
 </body>
 
