@@ -358,7 +358,14 @@ app.post('/webhook/payment', async (req, res) => {
     console.log('🔔 [WEBHOOK] Recebido POST em /webhook/payment');
     console.log('Body recebido:', req.body);
 
-    const { payment_id } = req.body;
+    // Suporte ao formato do Mercado Pago e ao formato antigo
+    let payment_id = req.body.payment_id;
+    if (!payment_id && req.body.data && req.body.data.id) {
+        payment_id = req.body.data.id;
+    }
+    if (!payment_id) {
+        return res.status(400).json({ success: false, message: 'payment_id não encontrado no body' });
+    }
     console.log(`🔔 Webhook recebido:`, { payment_id });
 
     // Buscar status real na API do Mercado Pago
