@@ -1,4 +1,3 @@
-
 // ================== IMPORTS E INICIALIZAÇÃO ==================
 const express = require('express');
 const cors = require('cors');
@@ -356,6 +355,9 @@ app.get('/api/check-payment/:payment_id', async (req, res) => {
 
 // Webhook - Confirmação de pagamento
 app.post('/webhook/payment', async (req, res) => {
+    console.log('🔔 [WEBHOOK] Recebido POST em /webhook/payment');
+    console.log('Body recebido:', req.body);
+
     const { payment_id } = req.body;
     console.log(`🔔 Webhook recebido:`, { payment_id });
 
