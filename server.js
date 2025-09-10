@@ -515,48 +515,42 @@ app.get('/admin', (req, res) => {
     res.sendFile(__dirname + '/public/admin.html');
 });
 
-// API - Stats admin com autenticação
-app.get('/api/admin/stats', async (req, res) => {
-    // --- Admin login seguro ---
-    const crypto = require('crypto');
+// --- Admin routes & utilities (escopo principal) ---
 
-    // Endpoint de login admin
-    app.post('/api/admin/login', (req, res) => {
-        const { password } = req.body;
-        const adminPassword = process.env.ADMIN_PASSWORD;
-        if (!adminPassword) {
-            return res.status(500).json({ success: false, message: 'Senha admin não configurada.' });
-        }
-        if (password === adminPassword) {
-            // Gera um token simples (pode ser JWT, mas aqui é só um hash temporário)
-            const token = crypto.createHash('sha256').update(password + Date.now().toString()).digest('hex');
-            // Salva token em memória (pode ser melhorado para produção)
-            global.adminTokens = global.adminTokens || new Set();
-            global.adminTokens.add(token);
-            return res.json({ success: true, token });
-        }
-        return res.json({ success: false });
-    });
-
-    // Middleware para proteger rotas admin
-    function requireAdminAuth(req, res, next) {
-        const auth = req.headers['authorization'];
-        if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ success: false, message: 'Não autorizado' });
-        const token = auth.replace('Bearer ', '');
-        if (!global.adminTokens || !global.adminTokens.has(token)) {
-            return res.status(401).json({ success: false, message: 'Token inválido' });
-        }
-        next();
+// Endpoint de login admin
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+        return res.status(500).json({ success: false, message: 'Senha admin não configurada.' });
     }
+    if (password === adminPassword) {
+        const token = crypto.createHash('sha256').update(password + Date.now().toString()).digest('hex');
+        global.adminTokens = global.adminTokens || new Set();
+        global.adminTokens.add(token);
+        return res.json({ success: true, token });
+    }
+    return res.json({ success: false });
+});
 
-    // Endpoint de stats admin protegido
-    app.get('/api/admin/stats', requireAdminAuth, async (req, res) => {
+// Middleware para proteger rotas admin
+function requireAdminAuth(req, res, next) {
+    const auth = req.headers['authorization'];
+    if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ success: false, message: 'Não autorizado' });
+    const token = auth.replace('Bearer ', '');
+    if (!global.adminTokens || !global.adminTokens.has(token)) {
+        return res.status(401).json({ success: false, message: 'Token inválido' });
+    }
+    next();
+}
 
-        let connection;
-        try {
-            connection = await getConnection();
+// Endpoint de stats admin protegido
+app.get('/api/admin/stats', requireAdminAuth, async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
 
-            const [orders] = await connection.execute(`
+        const [orders] = await connection.execute(`
             SELECT 
                 COUNT(*) as total_orders,
                 SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_orders,
@@ -565,114 +559,88 @@ app.get('/api/admin/stats', async (req, res) => {
             FROM pix_orders
         `);
 
-            const [recent] = await connection.execute(`
+        const [recent] = await connection.execute(`
             SELECT * FROM pix_orders 
             ORDER BY created_at DESC 
             LIMIT 20
         `);
 
-            res.json({
-                success: true,
-                stats: orders[0],
-                recent_orders: recent
-            });
+        res.json({
+            success: true,
+            stats: orders[0],
+            recent_orders: recent
+        });
 
-        } catch (error) {
-            console.error('❌ Erro ao buscar stats:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Erro interno'
-            });
-        } finally {
-            if (connection) connection.release();
+    } catch (error) {
+        console.error('❌ Erro ao buscar stats:', error);
+        res.status(500).json({ success: false, message: 'Erro interno' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// API - Informações do sistema
+app.get('/api/system/info', (req, res) => {
+    res.json({
+        success: true,
+        system: {
+            environment: process.env.NODE_ENV || 'development',
+            version: '1.0.0',
+            timestamp: new Date().toISOString(),
+            packages: Object.keys(packages).map(key => ({ type: key, ...packages[key] }))
         }
     });
-
-    // API - Informações do sistema
-    app.get('/api/system/info', (req, res) => {
-        res.json({
-            success: true,
-            system: {
-                environment: process.env.NODE_ENV || 'development',
-                version: '1.0.0',
-                timestamp: new Date().toISOString(),
-                packages: Object.keys(packages).map(key => ({
-                    type: key,
-                    ...packages[key]
-                }))
-            }
-        });
-    });
-
-    // Debug - informações seguras do ambiente (NÃO EXIBE TOKENS)
-    app.get('/api/debug/env', (req, res) => {
-        const env = process.env.NODE_ENV || 'development';
-        const hasMpToken = !!process.env.MP_ACCESS_TOKEN;
-        const mpTokenLooksProduction = hasMpToken && !/test|sandbox|sandbox_token/i.test(process.env.MP_ACCESS_TOKEN);
-
-        res.json({
-            success: true,
-            environment: env,
-            has_mp_token: hasMpToken,
-            mp_token_looks_production: mpTokenLooksProduction,
-            pix_provider: 'mercadopago',
-            note: 'This endpoint never returns secret values. If mp_token_looks_production=false, set MP_ACCESS_TOKEN in Vercel and redeploy.'
-        });
-    });
-
-    // Health check para Vercel
-    app.get('/api/health', (req, res) => {
-        res.json({
-            status: 'ok',
-            timestamp: new Date().toISOString(),
-            service: 'JojoVendas Purple Coins'
-        });
-    });
-
-    // Error handler
-    app.use((error, req, res, next) => {
-        console.error('❌ Erro não tratado:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro interno do servidor'
-        });
-    });
-
-    // 404 handler
-    app.use((req, res) => {
-        res.status(404).json({
-            success: false,
-            message: 'Endpoint não encontrado'
-        });
-    });
-
-    // Iniciar servidor localmente (no Vercel nós apenas exportamos o app)
-    if (!process.env.VERCEL) {
-        const server = app.listen(PORT, () => {
-            console.log(`
-    🎮 JojoVendas Purple Coins Server
-    🌐 Servidor rodando em: http://localhost:${PORT}
-    📊 Admin panel: http://localhost:${PORT}/admin
-    💰 Loja: http://localhost:${PORT}
-    🔗 Webhook: http://localhost:${PORT}/webhook/payment
-    🔧 Ambiente: ${process.env.NODE_ENV || 'development'}
-    ✅ Sistema pronto para uso!
-            `);
-        });
-
-        // Graceful shutdown apenas para execução local
-        process.on('SIGINT', async () => {
-            console.log('🔄 Encerrando servidor...');
-            server.close(() => {
-                if (connectionPool) {
-                    connectionPool.end();
-                }
-                console.log('✅ Servidor encerrado com sucesso');
-                process.exit(0);
-            });
-        });
-    }
-
-    // Exporta o app para o ambiente serverless (Vercel) e para testes
-    module.exports = app;
 });
+
+// Debug - informa se o token do MP está presente (não retorna segredos)
+app.get('/api/debug/env', (req, res) => {
+    const env = process.env.NODE_ENV || 'development';
+    const hasMpToken = !!process.env.MP_ACCESS_TOKEN;
+    const mpTokenLooksProduction = hasMpToken && !/test|sandbox|sandbox_token/i.test(process.env.MP_ACCESS_TOKEN);
+
+    res.json({
+        success: true,
+        environment: env,
+        has_mp_token: hasMpToken,
+        mp_token_looks_production: mpTokenLooksProduction,
+        pix_provider: 'mercadopago',
+        note: 'This endpoint never returns secret values.'
+    });
+});
+
+// Health check para Vercel
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'JojoVendas Purple Coins' });
+});
+
+// Error handler
+app.use((error, req, res, next) => {
+    console.error('❌ Erro não tratado:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Endpoint não encontrado' });
+});
+
+// Iniciar servidor localmente (no Vercel nós apenas exportamos o app)
+if (!process.env.VERCEL) {
+    const server = app.listen(PORT, () => {
+        console.log(`\n🎮 JojoVendas Purple Coins Server\n🌐 Servidor rodando em: http://localhost:${PORT}\n📊 Admin panel: http://localhost:${PORT}/admin\n💰 Loja: http://localhost:${PORT}\n🔗 Webhook: http://localhost:${PORT}/webhook/payment\n🔧 Ambiente: ${process.env.NODE_ENV || 'development'}\n✅ Sistema pronto para uso!\n        `);
+    });
+
+    process.on('SIGINT', async () => {
+        console.log('🔄 Encerrando servidor...');
+        server.close(() => {
+            if (connectionPool) {
+                connectionPool.end();
+            }
+            console.log('✅ Servidor encerrado com sucesso');
+            process.exit(0);
+        });
+    });
+}
+
+// Exporta o app para o ambiente serverless (Vercel) e para testes
+module.exports = app;
