@@ -621,13 +621,9 @@
 
                 if (data.success) {
                     currentPaymentId = data.order.payment.id;
-
-                    // Configurar modal de pagamento
-                    setupPaymentModal(data.order);
-
+                    // Exibe o modal correto do PIX
+                    showPixModal(data.order);
                     closeModal('purchaseModal');
-                    document.getElementById('paymentModal').style.display = 'block';
-
                     // Iniciar verificação automática
                     startPaymentCheck();
                 } else {
