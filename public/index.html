@@ -616,8 +616,23 @@
                     })
                 });
 
-                const data = await response.json();
-                console.log('📦 Resposta do servidor:', data);
+                // Tentar parsear JSON; se falhar, mostrar erro legível
+                let data;
+                try {
+                    data = await response.json();
+                } catch (err) {
+                    const text = await response.text().catch(() => null);
+                    console.error('Resposta inválida ao criar pedido:', response.status, text);
+                    showError('Erro ao criar pedido: resposta inválida do servidor');
+                    return;
+                }
+
+                console.log('📦 Resposta do servidor:', response.status, data);
+
+                if (!response.ok) {
+                    showError('Erro ao criar pedido: ' + (data && data.message ? data.message : response.statusText));
+                    return;
+                }
 
                 if (data.success) {
                     currentPaymentId = data.order.payment.id;
