@@ -8,6 +8,15 @@ const axios = require('axios');
 const crypto = require('crypto');
 require('dotenv').config();
 
+// Captura erros não tratados para debug local e logs mais claros
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION:', err && err.stack ? err.stack : err);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('UNHANDLED REJECTION:', reason && reason.stack ? reason.stack : reason);
+});
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -548,6 +557,16 @@ function requireAdminAuth(req, res, next) {
 app.get('/api/admin/stats', requireAdminAuth, async (req, res) => {
     let connection;
     try {
+        // Se as variáveis do DB não estão configuradas, devolve stats vazias para o admin (melhor UX local)
+        if (!process.env.DB_HOST || !process.env.DB_USER || !process.env.DB_NAME) {
+            console.warn('[ADMIN] DB não configurado, retornando stats vazias');
+            return res.json({
+                success: true,
+                stats: { total_orders: 0, paid_orders: 0, total_revenue: 0, total_coins_sold: 0 },
+                recent_orders: [],
+                db_configured: false
+            });
+        }
         connection = await getConnection();
 
         const [orders] = await connection.execute(`
