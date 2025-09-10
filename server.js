@@ -676,4 +676,5 @@ process.on('SIGINT', async () => {
 
 // Exporta o app apenas após todas as definições
 module.exports = app;
+}
 module.exports = app;
