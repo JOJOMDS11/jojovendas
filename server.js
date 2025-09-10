@@ -76,6 +76,38 @@ app.post('/api/cleanup-pending-orders', async (req, res) => {
     }
 });
 
+// API - Marcar pedido como expired (chamada pelo cliente quando o tempo expira)
+app.post('/api/expire-order', async (req, res) => {
+    const { payment_id, order_id } = req.body;
+    if (!payment_id) return res.status(400).json({ success: false, message: 'payment_id é requerido' });
+
+    let connection;
+    try {
+        connection = await getConnection();
+        const [orders] = await connection.execute(
+            'SELECT * FROM pix_orders WHERE payment_id = ? AND status = "pending"',
+            [payment_id]
+        );
+
+        if (orders.length === 0) {
+            return res.json({ success: true, message: 'Pedido não encontrado ou já processado' });
+        }
+
+        await connection.execute(
+            'UPDATE pix_orders SET status = "expired" WHERE payment_id = ?',
+            [payment_id]
+        );
+
+        console.log(`⚠️ Pedido marcado como expired: ${payment_id}`);
+        return res.json({ success: true, message: 'Pedido marcado como expired' });
+    } catch (err) {
+        console.error('Erro ao expirar pedido:', err);
+        return res.status(500).json({ success: false, message: 'Erro interno' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 
 
 // Middleware

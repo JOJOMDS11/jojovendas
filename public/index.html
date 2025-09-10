@@ -820,10 +820,19 @@
         function showPixModal(order) {
             // Centraliza e exibe informações
             document.getElementById('pixPackageInfo').innerText = order.package.name + ' - R$ ' + order.payment.amount.toFixed(2);
-            document.getElementById('pixExpiresInfo').innerText = 'Expira às ' + (new Date(order.payment.expires_at)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            // Mostrar payment id (Mercado Pago transaction) em vez do UUID do pedido
+            const paymentIdDisplay = order.payment.id || order.payment.payment_id || order.payment.mpid || '';
+            document.getElementById('pixOrderIdBox').innerHTML = '<b>Número do Pedido (transação):</b> <span style="font-family:monospace;">' + paymentIdDisplay + '</span>';
+            // Iniciar contador regressivo até expires_at
+            const expiresAt = order.payment.expires_at ? new Date(order.payment.expires_at) : null;
+            if (expiresAt) {
+                startExpiryCountdown(expiresAt, paymentIdDisplay, order.id);
+            } else {
+                document.getElementById('pixExpiresInfo').innerText = '';
+            }
             document.getElementById('pixQrCode').innerHTML = '<img src="' + order.payment.qr_code + '" style="width:180px; height:180px; margin:0 auto; display:block;">';
             document.getElementById('pixCodeBox').innerHTML = '<b>Código PIX:</b><br><span style="word-break:break-all;">' + order.payment.pix_code + '</span>';
-            document.getElementById('pixOrderIdBox').innerHTML = '<b>Número do Pedido:</b> <span style="font-family:monospace;">' + order.id + '</span>';
+            // pixOrderIdBox already set above
             document.getElementById('pixStatusBox').innerHTML = '<span style="color:#b48b00;">⏳ Aguardando Pagamento...</span><br><small>Status será atualizado automaticamente após o pagamento</small>';
             document.getElementById('copyPixCodeBtn').onclick = function () {
                 navigator.clipboard.writeText(order.payment.pix_code);
@@ -832,6 +841,47 @@
                 checkPixStatus(order.payment.id, order.id);
             };
             document.getElementById('pixModal').style.display = 'flex';
+        }
+
+        // Contador regressivo para expiracao do PIX
+        let expiryTimerHandle = null;
+        function startExpiryCountdown(expiresAt, paymentId, orderId) {
+            const box = document.getElementById('pixExpiresInfo');
+            if (!box) return;
+
+            function update() {
+                const now = new Date();
+                const diff = expiresAt - now;
+                if (diff <= 0) {
+                    box.innerText = 'Expirado';
+                    // Mostrar expirado no status e parar verificação
+                    showPaymentExpired();
+                    // Tentar informar o backend para marcar como expired
+                    if (paymentId) {
+                        fetch('/api/expire-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ payment_id: String(paymentId), order_id: orderId })
+                        }).then(r => r.json()).then(d => {
+                            console.log('Expire request result:', d);
+                        }).catch(err => console.error('Erro ao chamar expire-order:', err));
+                    }
+                    if (expiryTimerHandle) {
+                        clearInterval(expiryTimerHandle);
+                        expiryTimerHandle = null;
+                    }
+                    return;
+                }
+
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                box.innerText = `Expira em ${minutes}m ${seconds}s`;
+            }
+
+            // limpar timer anterior
+            if (expiryTimerHandle) clearInterval(expiryTimerHandle);
+            update();
+            expiryTimerHandle = setInterval(update, 1000);
         }
 
         function checkPixStatus(paymentId, orderId) {
