@@ -395,32 +395,34 @@
 
         <div class="packages-grid">
             <div class="package-card">
-                <div class="package-title">🌟 Starter Pack</div>
-                <div class="package-coins">500 PC</div>
-                <div class="package-price">R$ 7,50</div>
-                <div class="package-description">Pacote inicial perfeito para começar sua jornada</div>
+                <div class="package-title">🌟 Starter</div>
+                <div class="package-coins">500 + 50<small style='font-size:1rem;color:#27ae60;'> (1ª compra)</small>
+                </div>
+                <div class="package-price">R$ 4,99</div>
+                <div class="package-description">Receba <b>550 PC</b> na 1ª compra! Ideal para começar.</div>
                 <ul class="package-features">
-                    <li>500 Purple Coins</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte 24/7</li>
+                    <li>500 Purple Coins (+50 bônus na 1ª compra)</li>
+                    <li>Preço/PC: R$0,00907</li>
                     <li>Entrega instantânea</li>
+                    <li>Suporte 24/7</li>
                 </ul>
                 <button class="buy-btn" onclick="openPurchaseModal('starter')">
-                    🛒 Comprar Agora
+                    🛒 Comprar Starter
                 </button>
             </div>
 
             <div class="package-card package-popular">
-                <div class="package-title">🔥 Popular Pack</div>
-                <div class="package-coins">1800 PC</div>
-                <div class="package-price">R$ 18,00</div>
-                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Economize R$ 9,00 (33% OFF)</div>
-                <div class="package-description">Pacote popular com 33% de desconto</div>
+                <div class="package-title">🔥 Popular</div>
+                <div class="package-coins">1800 + 200</div>
+                <div class="package-price">R$ 17,99</div>
+                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Entregue: 2000 PC
+                </div>
+                <div class="package-description">Pacote popular com bônus de 200 PC</div>
                 <ul class="package-features">
-                    <li>1800 Purple Coins</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte prioritário</li>
+                    <li>1800 Purple Coins (+200 bônus)</li>
+                    <li>Preço/PC: R$0,00899</li>
                     <li>Entrega instantânea</li>
+                    <li>Suporte prioritário</li>
                 </ul>
                 <button class="buy-btn" onclick="openPurchaseModal('popular')">
                     🔥 Comprar Popular
@@ -428,16 +430,17 @@
             </div>
 
             <div class="package-card">
-                <div class="package-title">💎 Premium Pack</div>
-                <div class="package-coins">2200 PC</div>
-                <div class="package-price">R$ 24,00</div>
-                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Economize R$ 9,00 (27% OFF)</div>
-                <div class="package-description">Pacote premium com 27% de desconto</div>
+                <div class="package-title">💎 Premium</div>
+                <div class="package-coins">2200 + 300</div>
+                <div class="package-price">R$ 21,99</div>
+                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Entregue: 2500 PC
+                </div>
+                <div class="package-description">Pacote premium com bônus de 300 PC</div>
                 <ul class="package-features">
-                    <li>2200 Purple Coins</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte VIP</li>
+                    <li>2200 Purple Coins (+300 bônus)</li>
+                    <li>Preço/PC: R$0,00880</li>
                     <li>Entrega instantânea</li>
+                    <li>Suporte VIP</li>
                 </ul>
                 <button class="buy-btn" onclick="openPurchaseModal('premium')">
                     💎 Comprar Premium
@@ -445,16 +448,17 @@
             </div>
 
             <div class="package-card">
-                <div class="package-title">🚀 Ultimate Pack</div>
-                <div class="package-coins">5500 PC</div>
-                <div class="package-price">R$ 55,00</div>
-                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Economize R$ 27,50 (33% OFF)</div>
-                <div class="package-description">Pacote ultimate com 33% de desconto</div>
+                <div class="package-title">🚀 Ultimate</div>
+                <div class="package-coins">5500 + 1500</div>
+                <div class="package-price">R$ 49,99</div>
+                <div class="package-savings" style="color:#27ae60;font-weight:bold;margin-bottom:8px;">Entregue: 7000 PC
+                </div>
+                <div class="package-description">Pacote ultimate com bônus de 1500 PC</div>
                 <ul class="package-features">
-                    <li>5500 Purple Coins</li>
-                    <li>Código válido por 30 dias</li>
-                    <li>Suporte exclusivo</li>
+                    <li>5500 Purple Coins (+1500 bônus)</li>
+                    <li>Preço/PC: R$0,00714</li>
                     <li>Entrega instantânea</li>
+                    <li>Suporte exclusivo</li>
                 </ul>
                 <button class="buy-btn" onclick="openPurchaseModal('ultimate')">
                     🚀 Comprar Ultimate
@@ -518,28 +522,36 @@
 
         const packages = {
             starter: {
-                name: 'Starter Pack',
+                name: 'Starter',
                 purple_coins: 500,
-                price: 5.00,
-                description: 'Pacote inicial perfeito para começar'
+                bonus: 50,
+                delivered: 550,
+                price: 4.99,
+                description: 'Receba 550 PC na 1ª compra! Ideal para começar.'
             },
             popular: {
-                name: 'Popular Pack',
-                purple_coins: 1000,
-                price: 20.00,
-                description: 'Nosso pacote mais vendido'
+                name: 'Popular',
+                purple_coins: 1800,
+                bonus: 200,
+                delivered: 2000,
+                price: 17.99,
+                description: 'Pacote popular com bônus de 200 PC'
             },
             premium: {
-                name: 'Premium Pack',
-                purple_coins: 2000,
-                price: 35.00,
-                description: 'Pacote premium com desconto'
+                name: 'Premium',
+                purple_coins: 2200,
+                bonus: 300,
+                delivered: 2500,
+                price: 21.99,
+                description: 'Pacote premium com bônus de 300 PC'
             },
             ultimate: {
-                name: 'Ultimate Pack',
-                purple_coins: 3000,
-                price: 75.00,
-                description: 'Pacote ultimate completo'
+                name: 'Ultimate',
+                purple_coins: 5500,
+                bonus: 1500,
+                delivered: 7000,
+                price: 49.99,
+                description: 'Pacote ultimate com bônus de 1500 PC'
             }
         };
 
@@ -548,8 +560,10 @@
             const pkg = packages[packageType];
 
             document.getElementById('modalTitle').textContent = `Comprar ${pkg.name}`;
-            document.getElementById('modalSubtitle').textContent =
-                `${pkg.purple_coins} Purple Coins por R$ ${pkg.price.toFixed(2)}`;
+            let subtitle = `${pkg.purple_coins} PC`;
+            if (pkg.bonus && pkg.bonus > 0) subtitle += ` + ${pkg.bonus} bônus`;
+            subtitle += ` por R$ ${pkg.price.toFixed(2)}`;
+            document.getElementById('modalSubtitle').textContent = subtitle;
 
             document.getElementById('purchaseModal').style.display = 'block';
         }

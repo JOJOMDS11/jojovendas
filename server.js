@@ -126,35 +126,43 @@ const dbConfig = {
     connectTimeout: 60000
 };
 
-// Pacotes de Purple Coins
+// Pacotes de Purple Coins (atualizado)
 const packages = {
     starter: {
-        name: 'Starter Pack',
+        name: 'Starter',
         purple_coins: 500,
-        price: 7.50,
-        discount: 0,
-        description: 'Pacote inicial perfeito para começar'
+        bonus: 50, // 1ª compra
+        delivered: 550,
+        price: 4.99,
+        effective_price_per_pc: 0.00907,
+        description: 'Pacote inicial com bônus na 1ª compra'
     },
     popular: {
-        name: 'Popular Pack',
-        purple_coins: 1500,
-        price: 15.00,
-        discount: 0,
-        description: 'Pacote popular com ótimo custo-benefício'
+        name: 'Popular',
+        purple_coins: 1800,
+        bonus: 200,
+        delivered: 2000,
+        price: 17.99,
+        effective_price_per_pc: 0.00899,
+        description: 'Pacote popular com bônus de 200 PC'
     },
     premium: {
-        name: 'Premium Pack',
+        name: 'Premium',
         purple_coins: 2200,
-        price: 22.00,
-        discount: 0,
-        description: 'Pacote premium para jogadores avançados'
+        bonus: 300,
+        delivered: 2500,
+        price: 21.99,
+        effective_price_per_pc: 0.00880,
+        description: 'Pacote premium com bônus de 300 PC'
     },
     ultimate: {
-        name: 'Ultimate Pack',
+        name: 'Ultimate',
         purple_coins: 5500,
-        price: 55.00,
-        discount: 27,
-        description: 'Pacote ultimate com 27% de desconto'
+        bonus: 1500,
+        delivered: 7000,
+        price: 49.99,
+        effective_price_per_pc: 0.00714,
+        description: 'Pacote ultimate com bônus de 1500 PC'
     }
 };
 
