@@ -151,10 +151,10 @@ const packages = {
     },
     ultimate: {
         name: 'Ultimate Pack',
-        purple_coins: 4000,
-        price: 50.00,
-        discount: 0,
-        description: 'Pacote ultimate para quem quer muito mais!'
+        purple_coins: 5500,
+        price: 55.00,
+        discount: 27,
+        description: 'Pacote ultimate com 27% de desconto'
     }
 };
 

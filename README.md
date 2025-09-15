@@ -17,7 +17,7 @@ Sistema completo de vendas de Purple Coins para HaxBall DreamTeam via PIX.
 | �� Starter | 500 PC | R$ 7,50 | - |
 | 🔥 Popular | 1500 PC | R$ 15,00 | - |
 | 💎 Premium | 2200 PC | R$ 22,00 | - |
-| 🚀 Ultimate | 4000 PC | R$ 50,00 | - |
+ | 🚀 Ultimate | 5500 PC | R$ 55,00 | 27% OFF |
 
 ### 🔧 **Admin Panel**
 - **Dashboard** com estatísticas de vendas
