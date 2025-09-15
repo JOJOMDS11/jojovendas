@@ -130,31 +130,31 @@ const dbConfig = {
 const packages = {
     starter: {
         name: 'Starter Pack',
-        purple_coins: 500, // alterado de 100 para 500
-        price: 5.00,
+        purple_coins: 500,
+        price: 15.00,
         discount: 0,
         description: 'Pacote inicial perfeito para começar'
     },
     popular: {
         name: 'Popular Pack',
-        purple_coins: 1000, // alterado de 500 para 1000
-        price: 20.00,
-        discount: 20,
-        description: 'Nosso pacote mais vendido com 20% de desconto'
+        purple_coins: 1000,
+        price: 27.00,
+        discount: 10,
+        description: 'Nosso pacote mais vendido com 10% de desconto'
     },
     premium: {
         name: 'Premium Pack',
-        purple_coins: 2000, // alterado de 1000 para 2000
-        price: 35.00,
-        discount: 30,
-        description: 'Pacote premium com 30% de desconto'
+        purple_coins: 2000,
+        price: 48.00,
+        discount: 20,
+        description: 'Pacote premium com 20% de desconto'
     },
     ultimate: {
         name: 'Ultimate Pack',
-        purple_coins: 3000, // alterado de 2500 para 3000
-        price: 75.00,
-        discount: 40,
-        description: 'Pacote ultimate com 40% de desconto'
+        purple_coins: 4000,
+        price: 84.00,
+        discount: 30,
+        description: 'Pacote ultimate com 30% de desconto'
     }
 };
 
