@@ -131,30 +131,30 @@ const packages = {
     starter: {
         name: 'Starter Pack',
         purple_coins: 500,
-        price: 15.00,
+        price: 7.50,
         discount: 0,
         description: 'Pacote inicial perfeito para começar'
     },
     popular: {
         name: 'Popular Pack',
-        purple_coins: 1000,
-        price: 27.00,
-        discount: 10,
-        description: 'Nosso pacote mais vendido com 10% de desconto'
+        purple_coins: 1500,
+        price: 15.00,
+        discount: 0,
+        description: 'Pacote popular com ótimo custo-benefício'
     },
     premium: {
         name: 'Premium Pack',
-        purple_coins: 2000,
-        price: 48.00,
-        discount: 20,
-        description: 'Pacote premium com 20% de desconto'
+        purple_coins: 2200,
+        price: 22.00,
+        discount: 0,
+        description: 'Pacote premium para jogadores avançados'
     },
     ultimate: {
         name: 'Ultimate Pack',
         purple_coins: 4000,
-        price: 84.00,
-        discount: 30,
-        description: 'Pacote ultimate com 30% de desconto'
+        price: 50.00,
+        discount: 0,
+        description: 'Pacote ultimate para quem quer muito mais!'
     }
 };
 
